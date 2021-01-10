@@ -43,7 +43,7 @@ namespace CanalView
                         var newX = x + dx * scale;
                         var newY = y + dy * scale;
                         if (newX < 0 || newX >= width || newY < 0 || newY >= height) break;
-                        if (board[newX, newY] == Cell.Empty && board[newX, newY] >= 0) break;
+                        if (board[newX, newY] == Cell.Empty || board[newX, newY] >= 0) break;
                         if (foundUnknown || board[newX, newY] == Cell.Unkown)
                         {
                             foundUnknown = true;
