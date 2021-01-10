@@ -34,7 +34,7 @@ namespace CanalView
                 var cellNumber = (int)board[x, y];
                 var countUnknown = 0;
                 var countFull = 0;
-                foreach (var (dy, dx) in CardinalDirections)
+                foreach (var (dx, dy) in CardinalDirections)
                 {
                     var scale = 1;
                     var foundUnknown = false;
@@ -43,7 +43,7 @@ namespace CanalView
                         var newX = x + dx * scale;
                         var newY = y + dy * scale;
                         if (newX < 0 || newX >= width || newY < 0 || newY >= height) break;
-                        if (board[newX, newY] == Cell.Empty) break;
+                        if (board[newX, newY] == Cell.Empty && board[newX, newY] > 0) break;
                         if (foundUnknown || board[newX, newY] == Cell.Unkown)
                         {
                             foundUnknown = true;
@@ -85,12 +85,12 @@ namespace CanalView
             {
                 if (painted[x, y]) return;
                 painted[x, y] = true;
-                foreach (var (dy, dx) in CardinalDirections)
+                foreach (var (dx, dy) in CardinalDirections)
                 {
                     var newX = x + dx;
                     var newY = y + dy;
                     if (newX < 0 || newX >= width || newY < 0 || newY >= height) continue;
-                    if (painted[newX, newY] || board[newX, newY] != Cell.Full) continue;
+                    if (board[newX, newY] != Cell.Full) continue;
                     FloodFill(newX, newY);
                 }
             }

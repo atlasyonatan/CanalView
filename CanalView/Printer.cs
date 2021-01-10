@@ -6,7 +6,6 @@ namespace CanalView
     {
         public static void PrintBoard(Cell[,] board)
         {
-            Console.WriteLine();
             var width = board.GetLength(0);
             var height = board.GetLength(1);
             for (var y = 0; y < height; y++)

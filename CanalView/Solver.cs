@@ -13,23 +13,20 @@ namespace CanalView
             var size = width * height;
             void InnerSolve(int index)
             {
-                //Printer.PrintBoard(board);
                 if (!board.LegalSquare() || !board.LegalNumbers()) return;
                 if (index >= size)
                 {
-                    if(board.LegalPath()) solutions.Add((Cell[,])board.Clone());
+                    if (board.LegalPath()) solutions.Add((Cell[,])board.Clone());
                     return;
                 }
-                var x = index % width;
-                var y = index / width;
-                if (board[x, y] == Cell.Unkown)
+                if (board[index % width, index / width] == Cell.Unkown)
                 {
                     foreach (var fill in Rules.FillOptions)
                     {
-                        board[x, y] = fill;
+                        board[index % width, index / width] = fill;
                         InnerSolve(index + 1);
                     }
-                    board[x, y] = Cell.Unkown;
+                    board[index % width, index / width] = Cell.Unkown;
                 }
                 else InnerSolve(index + 1);
             }
