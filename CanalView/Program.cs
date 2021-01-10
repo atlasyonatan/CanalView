@@ -8,7 +8,7 @@ namespace CanalView
     {
         static void Main(string[] args)
         {
-            var board = Boards.Easy;
+            var board = Boards.Easy3_5x5;
             Printer.PrintBoard(board);
             Console.WriteLine();
             var sw = new Stopwatch();
@@ -17,8 +17,12 @@ namespace CanalView
             sw.Stop();
             Console.WriteLine(sw.Elapsed.ToString("c"));
             if (!solutions.Any()) Console.WriteLine("No solutions :c");
+            Console.WriteLine($"Found {solutions.Length} solution{(solutions.Length > 1 ? "s": "")}:");
             foreach (var solution in solutions)
+            {
                 Printer.PrintBoard(solution);
+                Console.WriteLine();
+            }
         }
     }
 }
