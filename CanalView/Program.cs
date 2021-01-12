@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CanalView.Solvers;
+using System;
 using System.Diagnostics;
 using System.Linq;
 
@@ -8,12 +9,12 @@ namespace CanalView
     {
         static void Main(string[] args)
         {
-            var board = Boards.Easy3_5x5;
+            var board = Boards.Easy_5x5;
             Printer.PrintBoard(board);
             Console.WriteLine();
             var sw = new Stopwatch();
             sw.Start();
-            var solutions = Solver.Solve(board).ToArray();
+            var solutions = new OptimizedBruteForceSolver().Solve(board).ToArray();
             sw.Stop();
             Console.WriteLine(sw.Elapsed.ToString("c"));
             if (!solutions.Any()) Console.WriteLine("No solutions :c");

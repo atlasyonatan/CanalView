@@ -26,5 +26,7 @@ namespace CanalView
                 board[x, y] = cell;
             return board;
         }
+
+        public static Cell[,] Clone(Cell[,] board) => (Cell[,])board.Clone();
     }
 }

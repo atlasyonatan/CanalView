@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using CanalView.Interfaces;
 
 namespace CanalView
 {
-    public static class Solver
+    public class OLDOptimizedBruteForceSolver : ISolver
     {
-        public static IEnumerable<Cell[,]> Solve(Cell[,] board)
+        public IEnumerable<Cell[,]> Solve(Cell[,] board)
         {
             board = (Cell[,])board.Clone();
             List<Cell[,]> solutions = new List<Cell[,]>();
@@ -33,5 +35,7 @@ namespace CanalView
             InnerSolve(0);
             return solutions;
         }
+
+        
     }
 }
