@@ -46,7 +46,7 @@
                 (7,7,(Cell)1),
             });
 
-        public static Cell[,] MedumEasier_8x8 => Board.FromNumbers(8, 8, new (int, int, Cell)[]
+        public static Cell[,] HumanStartMedum_8x8 => Board.FromNumbers(8, 8, new (int, int, Cell)[]
             {
                 (3,0,(Cell)4),
                 (6,0,(Cell)3),
@@ -71,7 +71,7 @@
                 (7,6,Cell.Full),
             });
 
-        public static Cell[,] MediumPlus_10x10 => Board.FromNumbers(10, 10, new (int, int, Cell)[]
+        public static Cell[,] Medium_10x10 => Board.FromNumbers(10, 10, new (int, int, Cell)[]
             {
                 (1,3,(Cell)6),
                 (1,8,(Cell)5),

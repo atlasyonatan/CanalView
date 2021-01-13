@@ -8,6 +8,7 @@ namespace CanalView
     {
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             var board = Boards.Easy_5x5;
             Console.WriteLine(Board.ToString(board));
             Console.WriteLine();
@@ -32,6 +33,7 @@ namespace CanalView
                 Console.WriteLine($"No solutions! ({total.ToString("c")})");
             else
                 Console.WriteLine($"Total: found {i} solution{(i > 1 ? "s" : "")} ({total.ToString("c")})");
+            Console.ReadLine();
         }
     }
 }

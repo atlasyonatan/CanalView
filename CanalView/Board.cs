@@ -35,9 +35,9 @@ namespace CanalView
 
         public static string ToString(this Cell cell) => cell switch
         {
-            Cell.Empty => "O",
-            Cell.Full => "☺",
-            Cell.Unkown => "■",
+            Cell.Empty => "∙",
+            Cell.Full => "■",
+            Cell.Unkown => "_",
             _ => ((int)cell).ToString()
         };
     }
