@@ -28,5 +28,17 @@ namespace CanalView
         }
 
         public static Cell[,] Clone(Cell[,] board) => (Cell[,])board.Clone();
+
+        public static string ToString(Cell[,] board) => string.Join('\n',
+            Enumerable.Range(0, board.GetLength(1)).Select(y => string.Join(' ',
+                Enumerable.Range(0, board.GetLength(0)).Select(x => ToString(board[x, y])))));
+
+        public static string ToString(this Cell cell) => cell switch
+        {
+            Cell.Empty => "O",
+            Cell.Full => "☺",
+            Cell.Unkown => "■",
+            _ => ((int)cell).ToString()
+        };
     }
 }
