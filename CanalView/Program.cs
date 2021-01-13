@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
+using CanalView.Solvers;
 
 namespace CanalView
 {
@@ -8,21 +8,30 @@ namespace CanalView
     {
         static void Main(string[] args)
         {
-            var board = Boards.Easy3_5x5;
-            Printer.PrintBoard(board);
+            var board = Boards.Easy_5x5;
+            Console.WriteLine(Board.ToString(board));
             Console.WriteLine();
+            var solutions = new GuessAndCheck().Solve(board);
+            int i = 0;
             var sw = new Stopwatch();
+            TimeSpan total = TimeSpan.Zero;
             sw.Start();
-            var solutions = Solver.Solve(board).ToArray();
-            sw.Stop();
-            Console.WriteLine(sw.Elapsed.ToString("c"));
-            if (!solutions.Any()) Console.WriteLine("No solutions :c");
-            Console.WriteLine($"Found {solutions.Length} solution{(solutions.Length > 1 ? "s": "")}:");
             foreach (var solution in solutions)
             {
-                Printer.PrintBoard(solution);
-                Console.WriteLine();
+                sw.Stop();
+                total += sw.Elapsed;
+                Console.WriteLine($"Solution #{++i} ({sw.Elapsed.ToString("c")}):");
+                Console.WriteLine(Board.ToString(solution));
+                sw.Restart();
             }
+            sw.Stop();
+            total += sw.Elapsed;
+            
+            Console.WriteLine();
+            if(i == 0)
+                Console.WriteLine($"No solutions! ({total.ToString("c")})");
+            else
+                Console.WriteLine($"Total: found {i} solution{(i > 1 ? "s" : "")} ({total.ToString("c")})");
         }
     }
 }
