@@ -9,7 +9,7 @@ namespace CanalView
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            var board = Boards.Medium_8x8;
+            var board = Boards.Easy_5x5;
             Console.WriteLine(Board.ToString(board));
             Console.WriteLine();
             var solutions = new GuessAndCheck().Solve(board);

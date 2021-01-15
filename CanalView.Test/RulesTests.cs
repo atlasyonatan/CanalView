@@ -10,14 +10,24 @@ namespace CanalView.Test
         {
             var board = Board.Blank(3, 3);
             Assert.IsTrue(board.LegalSquare());
+            Assert.IsTrue(board.LegalSquare(0));
+            Assert.IsTrue(board.LegalSquare(8));
             board[1, 1] = Cell.Full;
             Assert.IsTrue(board.LegalSquare());
+            Assert.IsTrue(board.LegalSquare(0));
+            Assert.IsTrue(board.LegalSquare(8));
             board[0, 1] = Cell.Full;
             Assert.IsTrue(board.LegalSquare());
+            Assert.IsTrue(board.LegalSquare(0));
+            Assert.IsTrue(board.LegalSquare(8));
             board[1, 0] = Cell.Full;
             Assert.IsTrue(board.LegalSquare());
+            Assert.IsTrue(board.LegalSquare(0));
+            Assert.IsTrue(board.LegalSquare(8));
             board[0, 0] = Cell.Full;
             Assert.IsFalse(board.LegalSquare());
+            Assert.IsFalse(board.LegalSquare(0));
+            Assert.IsTrue(board.LegalSquare(8));
         }
 
         [Test]

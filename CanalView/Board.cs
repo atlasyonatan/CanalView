@@ -16,18 +16,9 @@ namespace CanalView
             return board;
         }
 
-        public static T[,] Add<T>(this T[,] board, IEnumerable<(int x, int y, T cell)> cells)
+        public static T[,] Add<T>(this T[,] board, params (int x, int y, T cell)[] cells)
         {
-            var width = board.GetLength(0);
-            var height = board.GetLength(1);
-            var cellArray = cells.ToArray();
-            if (cellArray.Any(c =>
-                c.x < 0 ||
-                c.x >= width ||
-                c.y < 0 ||
-                c.y >= height)) throw new ArgumentOutOfRangeException();
-            foreach (var c in cellArray)
-                board[c.x, c.y] = c.cell;
+            foreach (var c in cells) board[c.x, c.y] = c.cell;
             return board;
         }
 

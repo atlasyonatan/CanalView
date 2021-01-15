@@ -35,7 +35,7 @@ namespace CanalView
                 foreach (var d in Diagonals)
                 {
                     var newX = x + d.X;
-                    var newY = x + d.Y;
+                    var newY = y + d.Y;
                     if (newX < 0 || newX >= width || newY < 0 || newY >= height) continue;
                     if (board[x, newY] == Cell.Full &&
                         board[newX, y] == Cell.Full &&
@@ -56,7 +56,6 @@ namespace CanalView
             return true;
         }
 
-        //todo: fix this
         public static bool LegalNumbers(this Cell[,] board, int index)
         {
             var width = board.GetLength(0);
