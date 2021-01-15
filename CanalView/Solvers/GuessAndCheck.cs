@@ -11,7 +11,7 @@ namespace CanalView.Solvers
         private class EnumerableObject : IEnumerable<Cell[,]>
         {
             private readonly Cell[,] _board;
-            public EnumerableObject(Cell[,] board) => _board = Board.Clone(board);
+            public EnumerableObject(Cell[,] board) => _board = (Cell[,])board.Clone();
             public IEnumerator<Cell[,]> GetEnumerator() => new EnumeratorObject(_board);
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
@@ -21,17 +21,15 @@ namespace CanalView.Solvers
             private readonly int[] _unknownSpots;
             private readonly int _width;
             private readonly int _height;
-            private readonly int _size;
             private readonly Cell[] _fillOptions = Rules.FillOptions.ToArray();
             private int _spotIndex = 0;
 
             public EnumeratorObject(Cell[,] board)
             {
-                _board = Board.Clone(board);
+                _board = (Cell[,])board.Clone();
                 _width = _board.GetLength(0);
                 _height = _board.GetLength(1);
-                _size = _width * _height;
-                _unknownSpots = Enumerable.Range(0, _size)
+                _unknownSpots = Enumerable.Range(0, _width * _height)
                     .Where(spot => _board[spot % _width, spot / _width] == Cell.Unkown)
                     .ToArray();
             }
@@ -57,7 +55,7 @@ namespace CanalView.Solvers
                             _spotIndex++;
                         else if (_board.LegalPath())
                         {
-                            Current = Board.Clone(_board);
+                            Current = (Cell[,])_board.Clone();
                             return true;
                         }
                 }

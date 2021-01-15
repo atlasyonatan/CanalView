@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using static CanalView.Math;
 
 namespace CanalView
 {
@@ -20,28 +22,62 @@ namespace CanalView
             return true;
         }
 
+        public static bool LegalSquare(this Cell[,] board, int index)
+        {
+            var width = board.GetLength(0);
+            var height = board.GetLength(1);
+            var size = width * height;
+            if (index >= size) return true;
+            var x = index % width;
+            var y = index / width;
+            if (board[x, y] == Cell.Full)
+            {
+                foreach (var d in Diagonals)
+                {
+                    var newX = x + d.X;
+                    var newY = x + d.Y;
+                    if (newX < 0 || newX >= width || newY < 0 || newY >= height) continue;
+                    if (board[x, newY] == Cell.Full &&
+                        board[newX, y] == Cell.Full &&
+                        board[newX, newY] == Cell.Full) return false;
+                }
+            }
+            return true;
+        }
+
         public static bool LegalNumbers(this Cell[,] board)
         {
             var width = board.GetLength(0);
             var height = board.GetLength(1);
             var size = width * height;
             for (var i = 0; i < size; i++)
-            {
-                var x = i % width;
-                var y = i / width;
-                if (board[x, y] < 0) continue;
+                if (board[i % width, i / width] >= 0 && !board.LegalNumbers(i))
+                    return false;
+            return true;
+        }
 
+        //todo: fix this
+        public static bool LegalNumbers(this Cell[,] board, int index)
+        {
+            var width = board.GetLength(0);
+            var height = board.GetLength(1);
+            var size = width * height;
+            if (index >= size) return true;
+            var x = index % width;
+            var y = index / width;
+            if (board[x, y] >= 0)
+            {
                 var cellNumber = (int)board[x, y];
                 var countUnknown = 0;
                 var countFull = 0;
-                foreach (var (dx, dy) in CardinalDirections)
+                foreach (var d in CardinalDirections)
                 {
                     var scale = 1;
                     var foundUnknown = false;
                     while (true)
                     {
-                        var newX = x + dx * scale;
-                        var newY = y + dy * scale;
+                        var newX = x + d.X * scale;
+                        var newY = y + d.Y * scale;
                         if (newX < 0 || newX >= width || newY < 0 || newY >= height) break;
                         if (board[newX, newY] == Cell.Empty || board[newX, newY] >= 0) break;
                         if (foundUnknown || board[newX, newY] == Cell.Unkown)
@@ -49,12 +85,28 @@ namespace CanalView
                             foundUnknown = true;
                             countUnknown++;
                         }
-                        else if (board[newX, newY] == Cell.Full) countFull++;
+                        else if (board[newX, newY] == Cell.Full && ++countFull > cellNumber) return false;
                         scale++;
                     }
                 }
-                if (countFull > cellNumber) return false;
-                if (countUnknown + countFull < cellNumber) return false;
+                return (countUnknown + countFull >= cellNumber) && (cellNumber != 0 || countFull <= 0);
+            }
+            foreach (var d in CardinalDirections)
+            {
+                var scale = 1;
+                while (true)
+                {
+                    var newX = x + d.X * scale;
+                    var newY = y + d.Y * scale;
+                    if (newX < 0 || newX >= width || newY < 0 || newY >= height) break;
+                    if (board[newX, newY] >= 0)
+                    {
+                        if (!board.LegalNumbers(newY * width + newX))
+                            return false;
+                        break;
+                    }
+                    scale++;
+                }
             }
             return true;
         }
@@ -63,51 +115,19 @@ namespace CanalView
         {
             var width = board.GetLength(0);
             var height = board.GetLength(1);
-            var size = width * height;
-            int x0 = -1;
-            int y0 = -1;
-            for (var i = 0; i < size; i++)
-            {
-                var x = i % width;
-                var y = i / width;
-                if (board[x, y] == Cell.Full)
-                {
-                    x0 = x;
-                    y0 = y;
-                    break;
-                }
-            }
-            if (x0 == -1) return true;
-
-            var painted = new bool[height, width];
-            //flood fill
-            void FloodFill(int x, int y)
-            {
-                if (painted[x, y]) return;
-                painted[x, y] = true;
-                foreach (var (dx, dy) in CardinalDirections)
-                {
-                    var newX = x + dx;
-                    var newY = y + dy;
-                    if (newX < 0 || newX >= width || newY < 0 || newY >= height) continue;
-                    if (board[newX, newY] != Cell.Full) continue;
-                    FloodFill(newX, newY);
-                }
-            }
-            FloodFill(x0, y0);
-
-            //check
-            for (var i = 0; i < size; i++)
-            {
-                var x = i % width;
-                var y = i / width;
-                if (board[x, y] == Cell.Full && !painted[x, y]) return false;
-            }
-
-            return true;
+            var index = Enumerable.Range(0, width * height).Where(i => board[i % width, i / width] == Cell.Full).Cast<int?>().FirstOrDefault();
+            return index is null || board.LegalPath((int)index);
         }
 
-        public static readonly IEnumerable<(int dx, int dy)> CardinalDirections = new (int, int)[] { (0, -1), (-1, 0), (0, 1), (1, 0) };
+        public static bool LegalPath(this Cell[,] board, int index)
+        {
+            var width = board.GetLength(0);
+            var height = board.GetLength(1);
+            var size = width * height;
+            if (index >= size || board[index % width, index / width] != Cell.Full) return true;
+            var flooded = ((Cell[,])board.Clone()).FloodFill(index, Cell.Full + 1);
+            return !Enumerable.Range(0, size).Any(i => flooded[i % width, i / width] == Cell.Full);
+        }
 
         public static readonly IEnumerable<Cell> FillOptions = new Cell[] { Cell.Full, Cell.Empty };
     }
