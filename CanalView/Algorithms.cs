@@ -9,14 +9,14 @@ namespace CanalView
     {
         public static bool FillMusts(this Cell[,] board) => board.GetSpots()
             .Where(s => board[s.X, s.Y] != Cell.Unkown && board[s.X, s.Y] >= Cell.Empty)
-            .Any(s => board.FillMusts(s.X, s.Y));
+            .All(s => board.FillMusts(s.X, s.Y));
 
-        public static bool FillMusts(this Cell[,] board, int x, int y) => board.Contains(x, y) && (board[x, y]) switch
+        public static bool FillMusts(this Cell[,] board, int x, int y) => !board.Contains(x, y) || (board[x, y] switch
         {
             Cell.Full => board.FillMusts_Full(x, y),
             Cell.Empty => board.FillMusts_Empty(x, y),
             _ => board[x, y] < 0 || board.FillMusts_Number(x, y)
-        };
+        });
 
         #region Full
 
@@ -38,6 +38,7 @@ namespace CanalView
                 from d1 in validDirections
                 from d2 in validDirections
                 select (d1, d2);
+            //todo: add middle of L
             var neighbors = cartesian.Where(p => (Abs(p.d1.X - p.d2.X) == 1) ^ (Abs(p.d1.Y - p.d2.Y) == 1));
             var LshapePairs = neighbors.Where(p =>
                 board[x + p.d1.X, y + p.d1.Y] == Cell.Full &&

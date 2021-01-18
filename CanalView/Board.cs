@@ -23,11 +23,11 @@ namespace CanalView
 
         public static Cell[,] Blank(int width, int height) => (new Cell[width, height]).Fill(Cell.Unkown);
 
-        public static string ToString(Cell[,] board) => string.Join('\n',
+        public static string Tostring(this Cell[,] board) => string.Join('\n',
             Enumerable.Range(0, board.GetLength(1)).Select(y => string.Join(' ',
-                Enumerable.Range(0, board.GetLength(0)).Select(x => ToString(board[x, y])))));
+                Enumerable.Range(0, board.GetLength(0)).Select(x => board[x, y].Tostring()))));
 
-        public static string ToString(this Cell cell) => cell switch
+        public static string Tostring(this Cell cell) => cell switch
         {
             Cell.Empty => "∙",
             Cell.Full => "■",
@@ -43,5 +43,7 @@ namespace CanalView
 
         public static IEnumerable<(int X, int Y)> GetSpots<T>(this T[,] arr) => Enumerable.Range(0, arr.GetLength(0) * arr.GetLength(1))
             .Select(i => (X: i % arr.GetLength(0), Y: i / arr.GetLength(0)));
+
+        public static T[,] Copy<T>(this T[,] arr) => (T[,])arr.Clone();
     }
 }

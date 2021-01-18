@@ -2,15 +2,13 @@
 {
     public static class Boards
     {
-        public static Cell[,] Easy_5x5 => Board.Blank(5, 5).Add(new (int, int, Cell)[]
-            {
-                (0,0,(Cell)5),
-                (1,2,(Cell)4),
-                (3,2,(Cell)3),
-                (0,4,(Cell)3),
-                (2,4,(Cell)1),
-                (4,4,(Cell)4),
-            });
+        public static Cell[,] Easy_5x5 => Board.Blank(5, 5).Add(
+            (0,0,(Cell)5),
+            (1,2,(Cell)4),
+            (3,2,(Cell)3),
+            (0,4,(Cell)3),
+            (2,4,(Cell)1),
+            (4,4,(Cell)4));
         public static Cell[,] Easy2_5x5 => Board.Blank(5, 5).Add(new (int, int, Cell)[]
             {
                 (1,1,(Cell)2),

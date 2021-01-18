@@ -10,7 +10,7 @@ namespace CanalView
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             var board = Boards.Easy_5x5;
-            Console.WriteLine(Board.ToString(board));
+            Console.WriteLine(board.Tostring());
             Console.WriteLine();
             var solutions = new GuessAndCheck().Solve(board);
             int i = 0;
@@ -23,7 +23,7 @@ namespace CanalView
                 sw.Stop();
                 total += sw.Elapsed;
                 Console.WriteLine($"Solution #{++i} ({sw.Elapsed.ToString("c")}):");
-                Console.WriteLine(Board.ToString(solution));
+                Console.WriteLine(Board.Tostring(solution));
                 sw.Restart();
             }
             sw.Stop();
