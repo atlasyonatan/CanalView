@@ -69,7 +69,7 @@ namespace CanalView
                 var cellNumber = (int)board[x, y];
                 var countUnknown = 0;
                 var countFull = 0;
-                foreach (var d in CardinalDirections)
+                foreach (var d in Cardinals)
                 {
                     var scale = 1;
                     var foundUnknown = false;
@@ -90,7 +90,7 @@ namespace CanalView
                 }
                 return (countUnknown + countFull >= cellNumber) && (cellNumber != 0 || countFull <= 0);
             }
-            foreach (var d in CardinalDirections)
+            foreach (var d in Cardinals)
             {
                 var scale = 1;
                 while (true)

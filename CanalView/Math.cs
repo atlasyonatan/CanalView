@@ -4,7 +4,7 @@ namespace CanalView
 {
     public static class Math
     {
-        public static readonly (int X, int Y)[] CardinalDirections = new (int, int)[] { (0, -1), (-1, 0), (0, 1), (1, 0) };
+        public static readonly (int X, int Y)[] Cardinals = new (int, int)[] { (0, -1), (-1, 0), (0, 1), (1, 0) };
         public static readonly (int X, int Y)[] Diagonals = new (int, int)[] { (-1, -1), (-1, 1), (1, -1), (1, 1) };
         public static T[,] FloodFill<T>(this T[,] board, int index, T color) where T : IComparable
         {
@@ -17,10 +17,10 @@ namespace CanalView
             void InnerFloodFill(int x, int y)
             {
                 board[x, y] = color;
-                for (var i = 0; i < CardinalDirections.Length; i++)
+                for (var i = 0; i < Cardinals.Length; i++)
                 {
-                    var newX = x + CardinalDirections[i].X;
-                    var newY = y + CardinalDirections[i].Y;
+                    var newX = x + Cardinals[i].X;
+                    var newY = y + Cardinals[i].Y;
                     if (newX >= 0 && newX < width && newY >= 0 && newY < height && board[newX, newY].CompareTo(match) == 0)
                         InnerFloodFill(newX, newY);
                 }

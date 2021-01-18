@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace CanalView
@@ -35,5 +34,14 @@ namespace CanalView
             Cell.Unkown => "_",
             _ => ((int)cell).ToString()
         };
+
+        public static bool Contains<T>(this T[,] arr, int x, int y) =>
+            x >= 0 &&
+            x < arr.GetLength(0) &&
+            y >= 0 &&
+            y < arr.GetLength(1);
+
+        public static IEnumerable<(int X, int Y)> GetSpots<T>(this T[,] arr) => Enumerable.Range(0, arr.GetLength(0) * arr.GetLength(1))
+            .Select(i => (X: i % arr.GetLength(0), Y: i / arr.GetLength(0)));
     }
 }
