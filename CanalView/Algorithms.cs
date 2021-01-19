@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using static CanalView.Math;
 
 namespace CanalView
@@ -125,61 +126,123 @@ namespace CanalView
         {
             if (!board.Contains(x, y) || board[x, y] < 0)
                 return true;
+
+            #region Find counts
+            // Find counts
             var cellNumber = (int)board[x, y];
             var fullCount = new int[4];
             var distances = new int[4];
-            for (var i = 0; i < 4; i++)
+            for (var j = 0; j < 4; j++)
             {
                 var scale = 1;
                 var foundUnknown = false;
                 while (true)
                 {
-                    var newX = x + Cardinals[i].X * scale;
-                    var newY = y + Cardinals[i].Y * scale;
+                    var newX = x + Cardinals[j].X * scale;
+                    var newY = y + Cardinals[j].Y * scale;
                     if (!board.Contains(newX, newY) || board[newX, newY] == Cell.Empty || board[newX, newY] >= 0)
                     {
-                        distances[0] = scale - 1;
+                        distances[j] = scale - 1;
                         break;
                     }
                     if (foundUnknown || board[newX, newY] == Cell.Unkown)
                         foundUnknown = true;
                     else if (board[newX, newY] == Cell.Full)
                     {
-                        fullCount[i] += 1;
-                        if (fullCount[i] > cellNumber)
+                        fullCount[j] += 1;
+                        if (fullCount[j] > cellNumber)
                             return false;
                     }
                     scale++;
                 }
             }
+            #endregion
+
+            //Check for musts
+            var musts = new List<(int X, int Y)>() { };
             var totalFullCount = fullCount.Sum();
-            if (totalFullCount == cellNumber)
-                return true;
             var totalRemaining = distances.Sum() - totalFullCount;
-            for (var i = 0; i < 4; i++)
+            var unchangedCount = 0;
+            var i = -1;
+            while (unchangedCount < 4)
             {
-                var remaining = 2 * (distances[i] - fullCount[i]) - totalRemaining;
-                if (remaining <= 0) continue;
-                
-                var offset = fullCount[i] + 1;
-                var mustFulls = Enumerable.Range(offset + 1, offset + remaining)
-                    .Select(scale => (X: x + Cardinals[i].X * scale, Y: y + Cardinals[i].Y * scale))
-                    .ToArray();
-                if (mustFulls.Any(s => board[s.X, s.Y] != Cell.Unkown))
-                    return false;
-                var mustEmptys = Enumerable.Range(0, 4)
-                    .Select(j => (Index: j, Scale: j == i ? offset + remaining + 1 : fullCount[j] + 1))
-                    .Select(t => (X: x + Cardinals[t.Index].X * t.Scale, Y: y + Cardinals[t.Index].X * t.Scale))
-                    .Where(s => board.Contains(s.X, s.Y) && board[s.X, s.Y] == Cell.Unkown)
-                    .ToArray();
-                foreach (var s in mustFulls)
-                    board[s.X, s.Y] = Cell.Full;
-                foreach (var s in mustEmptys)
-                    board[s.X, s.Y] = Cell.Empty;
-                return mustEmptys.All(s => board.FillMusts_Empty(s.X, s.Y)) &&
-                    mustFulls.All(s => board.FillMusts_Full(s.X, s.Y));
+                unchangedCount++;
+                i = (i + 1) % 4;
+                //var remaining = cellNumber + distances[i] - totalRemaining - fullCount[i];
+                //var remaining = cellNumber - totalFullCount - (totalRemaining - (distances[i]- fullCount[i]));
+                var remaining = cellNumber - totalFullCount - totalRemaining + distances[i] - fullCount[i];
+
+                //check if found must fulls
+                if (remaining > 0)
+                {
+                    var offset = fullCount[i] + 1;
+                    var mfs = Enumerable.Range(offset, remaining)
+                        .Select(scale => (
+                            X: x + Cardinals[i].X * scale,
+                            Y: y + Cardinals[i].Y * scale))
+                        .Where(s => board.Contains(s.X, s.Y))
+                        .ToArray();
+                    if (mfs.Any(s => board[s.X, s.Y] != Cell.Unkown))
+                        return false;
+                    if (mfs.Length > 0)
+                    {
+                        //Update board
+                        foreach (var s in mfs)
+                            board[s.X, s.Y] = Cell.Full;
+
+                        //Add to musts
+                        musts.AddRange(mfs);
+
+                        //Update counts
+                        unchangedCount = 0;
+                        fullCount[i] += mfs.Length;
+                        totalFullCount += fullCount[i];
+                        totalRemaining -= fullCount[i];
+                    }
+                }
+
+                //check if number is satisfied
+                if (totalFullCount == cellNumber)
+                {
+                    //block cardinals
+                    var fillEmpties = fullCount.Select((fc, i) => (
+                        X: x + Cardinals[i].X * (fc + 1),
+                        Y: y + Cardinals[i].Y * (fc + 1)))
+                        .Where(s => board.Contains(s.X, s.Y) && board[s.X, s.Y] == Cell.Unkown);
+                    foreach (var s in fillEmpties)
+                    {
+                        board[s.X, s.Y] = Cell.Empty;
+                        musts.Add(s);
+                    }
+                    break; //number satisfied so no more checks.
+                }
+
+                //Next must be empty if there are too many fulls after next
+                var nextScale = fullCount[i] + 1;
+                var next = (X: x + Cardinals[i].X * nextScale, Y: y + Cardinals[i].Y * nextScale);
+                if (board.Contains(next.X, next.Y) && board[next.X, next.Y] == Cell.Unkown)
+                {
+                    var afterNextFullCount = 0;
+                    while (true)
+                    {
+                        var newX = x + Cardinals[i].X * nextScale;
+                        var newY = y + Cardinals[i].Y * nextScale;
+                        if (!board.Contains(newX, newY) || board[newX, newY] != Cell.Full) break;
+                        afterNextFullCount++;
+                        if (totalFullCount + afterNextFullCount + 1 > cellNumber)
+                        {
+                            //Next must be empty
+                            board[next.X, next.Y] = Cell.Empty;
+                            musts.Add(next);
+
+                            //Update counts
+                            unchangedCount = 0;
+                            break;
+                        }
+                    }
+                }
             }
-            return true;
+            return musts.All(s => board.FillMusts(s.X, s.Y));
         }
 
         public static readonly (int X, int Y)[] ClockwiseDirections = new (int, int)[] { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
