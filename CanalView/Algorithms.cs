@@ -45,7 +45,7 @@ namespace CanalView
                 if ((spotsArr & mask) == mask) mustsArr |= 2 << (i * 2);
                 mask = 6 << (i * 2);
                 if ((spotsArr & mask) == mask) mustsArr |= 1 << (i * 2);
-                mask >>= 1;
+                mask <<= 1;
                 if ((spotsArr & mask) == mask) mustsArr |= 16 << (i * 2);
             }
             var musts = Enumerable.Range(0, 8)
