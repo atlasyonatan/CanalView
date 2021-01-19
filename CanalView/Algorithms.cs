@@ -168,8 +168,6 @@ namespace CanalView
             {
                 unchangedCount++;
                 i = (i + 1) % 4;
-                //var remaining = cellNumber + distances[i] - totalRemaining - fullCount[i];
-                //var remaining = cellNumber - totalFullCount - (totalRemaining - (distances[i]- fullCount[i]));
                 var remaining = cellNumber - totalFullCount - totalRemaining + distances[i] - fullCount[i];
 
                 //check if found must fulls
@@ -196,8 +194,8 @@ namespace CanalView
                         //Update counts
                         unchangedCount = 0;
                         fullCount[i] += mfs.Length;
-                        totalFullCount += fullCount[i];
-                        totalRemaining -= fullCount[i];
+                        totalFullCount += mfs.Length;
+                        totalRemaining -= mfs.Length;
                     }
                 }
 
@@ -225,6 +223,7 @@ namespace CanalView
                     var afterNextFullCount = 0;
                     while (true)
                     {
+                        nextScale++;
                         var newX = x + Cardinals[i].X * nextScale;
                         var newY = y + Cardinals[i].Y * nextScale;
                         if (!board.Contains(newX, newY) || board[newX, newY] != Cell.Full) break;

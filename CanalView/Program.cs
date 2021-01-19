@@ -9,7 +9,7 @@ namespace CanalView
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            var board = Boards.Medium_8x8;
+            var board = Boards.Hard_12x12;
             Console.WriteLine(board.Tostring());
             Console.WriteLine();
             var sw = new Stopwatch();
