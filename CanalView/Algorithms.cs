@@ -31,9 +31,9 @@ namespace CanalView
             int fullSpots = 0;
             for (var i = 0; i < 8; i++)
             {
-                var d = ClockwiseDirections[i];
-                var newX = x + d.X;
-                var newY = y + d.Y;
+                var (dx, dy) = ClockwiseDirections[i];
+                var newX = x + dx;
+                var newY = y + dy;
                 if (board.Contains(newX, newY) && board[newX, newY] == Cell.Full)
                     fullSpots |= 1 << i;
             }
@@ -55,7 +55,7 @@ namespace CanalView
                 return false;
             var avalible = musts.Where(s => board[s.X, s.Y] == Cell.Unkown)
                 .ToArray();
-            foreach (var s in avalible) board[s.X, s.Y] = Cell.Empty;
+            foreach (var (X, Y) in avalible) board[X, Y] = Cell.Empty;
             return avalible.All(s => board.FillMusts_Empty(s.X, s.Y));
         }
 
@@ -185,8 +185,8 @@ namespace CanalView
                     if (mfs.Length > 0)
                     {
                         //Update board
-                        foreach (var s in mfs)
-                            board[s.X, s.Y] = Cell.Full;
+                        foreach (var (X, Y) in mfs)
+                            board[X, Y] = Cell.Full;
 
                         //Add to musts
                         musts.AddRange(mfs);

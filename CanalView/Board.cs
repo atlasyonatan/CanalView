@@ -17,7 +17,7 @@ namespace CanalView
 
         public static T[,] Add<T>(this T[,] board, params (int x, int y, T cell)[] cells)
         {
-            foreach (var c in cells) board[c.x, c.y] = c.cell;
+            foreach (var (x, y, cell) in cells) board[x, y] = cell;
             return board;
         }
 
