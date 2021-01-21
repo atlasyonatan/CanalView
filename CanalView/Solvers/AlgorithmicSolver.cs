@@ -20,9 +20,10 @@ namespace CanalView.Solvers
         {
             private Cell[,] _board;
             private readonly int[,] _colors;
-            private readonly Stack<((int X, int Y) Spot, int Color)> _guesses = new Stack<((int X, int Y) Spot, int Color)>();
+            private readonly Stack<((int X, int Y) Spot, int ValueIndex, int Color, int Index)> _guesses = new Stack<((int, int), int, int, int)>();
             private readonly Cell[] _fillOptions = new Cell[] { Cell.Full, Cell.Empty };
-            private int _currentColor = 0;
+            //private int _currentColor = 0;
+            private bool exit = false;
 
             public EnumeratorObject(Cell[,] board)
             {
@@ -32,69 +33,51 @@ namespace CanalView.Solvers
 
             public bool MoveNext()
             {
-                if (_currentColor == 0)
+                if (!_guesses.Any())
                 {
-                    if (!_board.FillMusts() || !_board.LegalSquare() || !_board.LegalNumbers())
-                        return false;
-                    (int X, int Y)? fullSpot = null;
-                    var isCompleted = true;
-                    foreach (var s in _board.GetSpots())
-                    {
-                        if (_board[s.X, s.Y] == Cell.Unkown)
-                        {
-                            isCompleted = false;
-                            break;
-                        }
-                        if (_board[s.X, s.Y] == Cell.Full)
-                        {
-                            fullSpot = s;
-                            break;
-                        }
-                    }
-                    if (isCompleted)
-                        return !fullSpot.HasValue || _board.LegalPath(fullSpot.Value.X + fullSpot.Value.Y * _board.GetLength(0));
-                    _currentColor++;
-                }
+                    if (exit) return false;
+                    var legal = _board.FillMusts();
+                    if (!legal) return false;
 
-                //already filled with musts
-                while (_currentColor >= 1)
-                {
-                    var legal = false;
-                    if (_board.GetSpots().TryFirst(s => _board[s.X, s.Y] == Cell.Unkown, out var unknownSpot))
-                        _guesses.Push((unknownSpot, _guesses.TryPeek(out var g) ? g.Color + 1 : 1));
-                    else
+                    var hasUnknown = _board.GetSpots().TryFirst(s => _board[s.X, s.Y] == Cell.Unkown, out var unknownSpot);
+                    if (!hasUnknown)
                     {
                         //board is completed
-                        legal = _board.Legal();
-                        if (legal) Current = _board.Copy();
+                        exit = true;
+                        return _board.Legal();
                     }
-
-                    var (spot, color) = _guesses.Peek();
-                    var cell = _board[spot.X, spot.Y];
-
-                    //clean current+ color
-                    CleanColor(color);
-
-                    //find next guess index
-                    var nextGuessValueIndex = cell == Cell.Unkown ? 0 : Array.IndexOf(_fillOptions, cell) + 1;
-
-                    //check if on last guess
-                    if (nextGuessValueIndex >= _fillOptions.Length)
+                    else
                     {
-                        //no more values for current guess
-                        _guesses.Pop();
-                        _currentColor--;
-                        if (legal) return true;
-                        continue;
+                        //board is not compeleted
+
+                        //push first guess
+                        var top = _board.TopGuessSpots();
+                        _guesses.Push((top[0].Spot, 0, 1, 0));
                     }
+                }
 
-                    //apply found guess
-                    _board[spot.X, spot.Y] = _fillOptions[nextGuessValueIndex];
-                    _colors[spot.X, spot.Y] = color;
+                //check if has guesses
+                while (_guesses.TryPop(out var guess))
+                {
+                    //already removed current guess from stack
 
-                    //check if guess is legal and successful musts
+                    //check if there's another value to guess in the same spot
+                    var nextGuessValueIndex = guess.ValueIndex + 1;
+                    if (nextGuessValueIndex < _fillOptions.Length)
+                    {
+                        //put the spot back into the stack but with next value
+                        _guesses.Push((guess.Spot, nextGuessValueIndex, guess.Color, guess.Index));
+                    }
+                    
+                    //current guess is unchecked
+
+                    //clean board from prev guess
+                    CleanColor(guess.Color);
+
+                    //check if current guess is legal and successful musts
                     var clone = _board.Copy();
-                    if (clone.Legal(spot.X + spot.Y * _board.GetLength(0)) && clone.FillMusts(spot.X, spot.Y))
+                    var legal = clone.Legal(guess.Spot.X + guess.Spot.Y * _board.GetLength(0)) && clone.FillMusts(guess.Spot.X, guess.Spot.Y);
+                    if (legal)
                     {
                         //changes are legal
 
@@ -110,10 +93,31 @@ namespace CanalView.Solvers
 
                             //mark changes with current color
                             foreach (var (X, Y) in changes)
-                                _colors[X, Y] = color;
+                                _colors[X, Y] = guess.Color;
+                        }
+
+                        //current guess is legal
+
+                        //populate stack with next guess spot
+                        var top = _board.TopGuessSpots();
+                        var nextGuessSpotIndex = guess.Index + 1;
+                        if (nextGuessSpotIndex < top.Length)
+                        {
+                            //found next guess spot
+                            _guesses.Push(guess);
+                            _guesses.Push((top[nextGuessSpotIndex].Spot, 0, guess.Color, nextGuessSpotIndex));
+                        }
+                        else
+                        {
+                            //no more guess spots
+
+                            //board is completed and legal -> will return true
+
+                            //already handled: next guess spot is the same spot but next value
+
+                            return true;
                         }
                     }
-                    if (legal) return true;
                 }
                 return false;
             }

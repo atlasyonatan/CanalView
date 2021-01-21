@@ -244,6 +244,6 @@ namespace CanalView
             return musts.All(s => board.FillMusts(s.X, s.Y));
         }
 
-        public static readonly (int X, int Y)[] ClockwiseDirections = new (int, int)[] { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
+        
     }
 }

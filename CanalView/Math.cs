@@ -6,6 +6,8 @@ namespace CanalView
     {
         public static readonly (int X, int Y)[] Cardinals = new (int, int)[] { (0, -1), (-1, 0), (0, 1), (1, 0) };
         public static readonly (int X, int Y)[] Diagonals = new (int, int)[] { (-1, -1), (-1, 1), (1, -1), (1, 1) };
+        public static readonly (int X, int Y)[] ClockwiseDirections = new (int, int)[] { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
+
         public static T[,] FloodFill<T>(this T[,] board, int index, T color) where T : IComparable
         {
             var width = board.GetLength(0);

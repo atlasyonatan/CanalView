@@ -119,25 +119,9 @@ namespace CanalView
             return true;
         }
 
-        public static bool LegalPath(this Cell[,] board)
-        {
-            var width = board.GetLength(0);
-            var height = board.GetLength(1);
-            var size = width * height;
-            int fullIndex = -1;
-            for (int i = 0; i < size; i++)
-            {
-                var cell = board[i % width, i / width];
-                if (cell == Cell.Unkown)
-                    return true;
-                if (cell == Cell.Full)
-                {
-                    fullIndex = i;
-                    break;
-                }
-            }
-            return fullIndex == -1 || board.LegalPath(fullIndex);
-        }
+        public static bool LegalPath(this Cell[,] board) =>
+            !board.GetSpots().TryFirst(s => board[s.X, s.Y] == Cell.Full, out var spot) || 
+            board.LegalPath(spot.X + spot.Y * board.GetLength(0));
 
         public static bool LegalPath(this Cell[,] board, int index)
         {
