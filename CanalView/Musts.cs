@@ -4,7 +4,7 @@ using static CanalView.Math;
 
 namespace CanalView
 {
-    public static class Algorithms
+    public static class Musts
     {
         public const Cell CHUNK_COLOR = (Cell)int.MinValue;
 
@@ -96,7 +96,7 @@ namespace CanalView
         public static bool FillMusts_Empty(this Cell[,] board, int x, int y, (int X, int Y)? cause = null) =>
             board.FillMusts_Empty_ConnectNumbers(x, y, cause) &&
             board.FillMusts_Empty_FullNeighbors(x, y, cause) &&
-            board.FillMusts_Empty_UnknownNeighbors(x, y, cause);
+            board.FillMusts_Empty_UnknownNeighbors(x, y);
 
         public static bool FillMusts_Empty_ConnectNumbers(this Cell[,] board, int x, int y, (int X, int Y)? cause = null) =>
             board[x, y] != Cell.Empty || board.FillMusts_ConnectNumbers(x, y, cause);
@@ -123,39 +123,39 @@ namespace CanalView
             return chunkSpots.All(s => board.FillMusts_Full(s.X, s.Y, spot));
         }
 
-        public static bool FillMusts_Empty_UnknownNeighbors(this Cell[,] board, int x, int y, (int X, int Y)? cause = null)
+        public static bool FillMusts_Empty_UnknownNeighbors(this Cell[,] board, int x, int y)
         {
-            if (!board.Contains(x, y) || 
-                board[x, y] != Cell.Empty || 
+            if (!board.Contains(x, y) ||
+                board[x, y] != Cell.Empty ||
                 board.GetSpots().All(s => board[s.X, s.Y] != Cell.Full))
                 return true;
 
-            
-
             var unknownNeighbors = Cardinals.Select(d => (X: x + d.X, Y: y + d.Y)).Where(s =>
                 board.Contains(s.X, s.Y) &&
-                board[s.X, s.Y] == Cell.Unkown &&
-                !s.Equals(cause))
+                board[s.X, s.Y] == Cell.Unkown)
                 .ToArray();
 
-            foreach (var neighbor in unknownNeighbors)
+            var musts = new List<(int X, int Y)>() { };
+
+            foreach (var (X, Y) in unknownNeighbors)
             {
-                if (board[neighbor.X, neighbor.Y] != Cell.Unkown) continue;
+                if (board[X, Y] != Cell.Unkown) continue;
                 var clone = board.Copy();
-                clone.FloodFill(neighbor.X + neighbor.Y * clone.GetLength(0), CHUNK_COLOR);
+                clone.FloodFill(X + Y * clone.GetLength(0), CHUNK_COLOR);
                 var chunkSpots = clone.GetSpots()
                     .Where(s => clone[s.X, s.Y] == CHUNK_COLOR)
                     .ToArray();
                 var touchingFull = chunkSpots.Any(s => Cardinals.Select(d => (X: s.X + d.X, Y: s.Y + d.Y))
-                    .Where(s => board.Contains(s.X, s.Y))
-                    .Any(s => board[s.X, s.Y] == Cell.Full));
+                    .Any(s => board.Contains(s.X, s.Y) && board[s.X, s.Y] == Cell.Full));
                 if (!touchingFull)
                 {
+                    musts.AddRange(chunkSpots);
                     foreach (var s in chunkSpots)
                         board[s.X, s.Y] = Cell.Empty;
                 }
             }
-            return true;
+
+            return musts.All(s => board.FillMusts_Empty(s.X, s.Y, null));
         }
 
         #endregion Empty

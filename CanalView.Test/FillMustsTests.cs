@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using static CanalView.Algorithms;
+using static CanalView.Musts;
 
 
 namespace CanalView.Test
