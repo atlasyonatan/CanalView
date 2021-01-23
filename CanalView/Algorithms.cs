@@ -7,21 +7,19 @@ namespace CanalView
     public static class Algorithms
     {
         public static bool FillMusts(this Cell[,] board) => board.GetSpots()
-            .Where(s => board[s.X, s.Y] != Cell.Unkown && board[s.X, s.Y] >= Cell.Empty)
+            .Where(s => board[s.X, s.Y] != Cell.Unkown)
             .All(s => board.FillMusts(s.X, s.Y));
 
-        public static bool FillMusts(this Cell[,] board, int x, int y) => !board.Contains(x, y) || (board[x, y] switch
+        public static bool FillMusts(this Cell[,] board, int x, int y) => board[x, y] switch
         {
             Cell.Full => board.FillMusts_Full(x, y),
             Cell.Empty => board.FillMusts_Empty(x, y),
-            _ => board[x, y] < 0 || board.FillMusts_Number(x, y)
-        });
+            _ => board.FillMusts_Number(x, y)
+        };
 
         public static bool FillMusts_Full(this Cell[,] board, int x, int y) =>
-            !board.Contains(x, y) ||
-            board[x, y] != Cell.Full ||
             board.FillMusts_Full_LShape(x, y) &&
-            board.FillMusts_Full_Surrounded(x, y) &&
+            board.FillMusts_Full_Surrounded(x, y) && //todo: add ignored direction logic
             board.FillMusts_Full_ConnectNumbers(x, y);
 
         public static bool FillMusts_Full_LShape(this Cell[,] board, int x, int y)
@@ -82,30 +80,15 @@ namespace CanalView
             }
         }
 
-        public static bool FillMusts_Full_ConnectNumbers(this Cell[,] board, int x, int y)
-        {
-            if (!board.Contains(x, y) || board[x, y] != Cell.Full)
-                return true;
-            for (var i = 0; i < Cardinals.Length; i++)
-            {
-                var scale = 1;
-                while (true)
-                {
-                    var newX = x + Cardinals[i].X * scale;
-                    var newY = y + Cardinals[i].Y * scale;
-                    if (!board.Contains(newX, newY) || board[newX, newY] == Cell.Empty) break;
-                    if (board[newX, newY] >= 0 && !board.FillMusts_Number(newX, newY))
-                        return false;
-                    scale++;
-                }
-            }
-            return true;
-        }
+        public static bool FillMusts_Full_ConnectNumbers(this Cell[,] board, int x, int y) =>
+            board[x, y] != Cell.Full || board.FillMusts_ConnectNumbers(x, y);
 
-        public static bool FillMusts_Empty(this Cell[,] board, int x, int y)
+        public static bool FillMusts_Empty(this Cell[,] board, int x, int y) =>
+            board[x, y] != Cell.Empty || board.FillMusts_ConnectNumbers(x, y);
+
+        public static bool FillMusts_ConnectNumbers(this Cell[,] board, int x, int y)
         {
-            if (!board.Contains(x, y) || board[x, y] != Cell.Empty)
-                return true;
+            if (!board.Contains(x, y)) return true;
             for (var i = 0; i < Cardinals.Length; i++)
             {
                 var scale = 1;
@@ -243,7 +226,5 @@ namespace CanalView
             }
             return musts.All(s => board.FillMusts(s.X, s.Y));
         }
-
-        
     }
 }
