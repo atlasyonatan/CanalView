@@ -8,19 +8,19 @@ namespace CanalView
     {
         public static bool FillMusts(this Cell[,] board) => board.GetSpots()
             .Where(s => board[s.X, s.Y] != Cell.Unkown)
-            .All(s => board.FillMusts(s.X, s.Y));
+            .All(s => board.FillMusts(s.X, s.Y, null));
 
-        public static bool FillMusts(this Cell[,] board, int x, int y) => board[x, y] switch
+        public static bool FillMusts(this Cell[,] board, int x, int y, (int X, int Y)? cause) => board[x, y] switch
         {
-            Cell.Full => board.FillMusts_Full(x, y),
-            Cell.Empty => board.FillMusts_Empty(x, y),
+            Cell.Full => board.FillMusts_Full(x, y, cause),
+            Cell.Empty => board.FillMusts_Empty(x, y, cause),
             _ => board.FillMusts_Number(x, y)
         };
 
-        public static bool FillMusts_Full(this Cell[,] board, int x, int y) =>
+        public static bool FillMusts_Full(this Cell[,] board, int x, int y, (int X, int Y)? cause) =>
             board.FillMusts_Full_LShape(x, y) &&
-            board.FillMusts_Full_Surrounded(x, y) && //todo: add ignored direction logic
-            board.FillMusts_Full_ConnectNumbers(x, y);
+            board.FillMusts_Full_Surrounded(x, y, cause) &&
+            board.FillMusts_Full_ConnectNumbers(x, y, cause);
 
         public static bool FillMusts_Full_LShape(this Cell[,] board, int x, int y)
         {
@@ -57,36 +57,39 @@ namespace CanalView
             return avalible.All(s => board.FillMusts_Empty(s.X, s.Y));
         }
 
-        public static bool FillMusts_Full_Surrounded(this Cell[,] board, int x, int y)
+        public static bool FillMusts_Full_Surrounded(this Cell[,] board, int x, int y, (int X, int Y)? cause)
         {
             if (!board.Contains(x, y) || board[x, y] != Cell.Full)
                 return true;
             var spot = (x, y);
             if (board.GetSpots().All(s => board[s.X, s.Y] != Cell.Full || s.Equals(spot)))
                 return true;
+
             var neighbors = Cardinals.Select(d => (X: x + d.X, Y: y + d.Y))
-                .Where(s => board.Contains(s.X, s.Y))
+                .Where(s => board.Contains(s.X, s.Y) && !s.Equals(cause))
                 .ToArray();
+
             if (neighbors.Any(s => board[s.X, s.Y] == Cell.Full))
                 return true;
+
             var avalible = neighbors.Where(s => board[s.X, s.Y] == Cell.Unkown).ToArray();
             switch (avalible.Length)
             {
                 case 0: return false;
                 case 1:
                     board[avalible[0].X, avalible[0].Y] = Cell.Full;
-                    return board.FillMusts_Full(avalible[0].X, avalible[0].Y);
+                    return board.FillMusts_Full(avalible[0].X, avalible[0].Y, spot);
                 default: return true;
             }
         }
 
-        public static bool FillMusts_Full_ConnectNumbers(this Cell[,] board, int x, int y) =>
-            board[x, y] != Cell.Full || board.FillMusts_ConnectNumbers(x, y);
+        public static bool FillMusts_Full_ConnectNumbers(this Cell[,] board, int x, int y, (int X, int Y)? cause) =>
+            board[x, y] != Cell.Full || board.FillMusts_ConnectNumbers(x, y, cause);
 
-        public static bool FillMusts_Empty(this Cell[,] board, int x, int y) =>
-            board[x, y] != Cell.Empty || board.FillMusts_ConnectNumbers(x, y);
+        public static bool FillMusts_Empty(this Cell[,] board, int x, int y, (int X, int Y)? cause) =>
+            board[x, y] != Cell.Empty || board.FillMusts_ConnectNumbers(x, y, cause);
 
-        public static bool FillMusts_ConnectNumbers(this Cell[,] board, int x, int y)
+        public static bool FillMusts_ConnectNumbers(this Cell[,] board, int x, int y, (int X, int Y)? cause)
         {
             if (!board.Contains(x, y)) return true;
             for (var i = 0; i < Cardinals.Length; i++)
@@ -96,7 +99,8 @@ namespace CanalView
                 {
                     var newX = x + Cardinals[i].X * scale;
                     var newY = y + Cardinals[i].Y * scale;
-                    if (!board.Contains(newX, newY) || board[newX, newY] == Cell.Empty) break;
+                    if (!board.Contains(newX, newY) || board[newX, newY] == Cell.Empty || (newX, newY).Equals(cause))
+                        break;
                     if (board[newX, newY] >= 0 && !board.FillMusts_Number(newX, newY))
                         return false;
                     scale++;
