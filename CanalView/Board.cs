@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CanalView
@@ -46,19 +47,23 @@ namespace CanalView
 
         public static T[,] Copy<T>(this T[,] arr) => (T[,])arr.Clone();
 
-        public static ((int X, int Y) Spot, int CardinalQuality, int DiagonalQuality)[] TopGuessSpots(this Cell[,] board) => board.GetSpots()
-            .Where(s => board[s.X, s.Y] == Cell.Unkown)
-            .Select(s => (Spot: s,
-                CardinalQuality: 4-Math.Cardinals
-                    .Select(d => (X: s.X + d.X, Y: s.Y + d.Y))
-                    .Count(s => board.Contains(s.X, s.Y) && board[s.X, s.Y] == Cell.Unkown),
-                DiagonalQuality: 4-Math.Diagonals
-                    .Select(d => (X: s.X + d.X, Y: s.Y + d.Y))
-                    .Count(s => board.Contains(s.X, s.Y) && board[s.X, s.Y] == Cell.Unkown)))
-            .OrderByDescending(s => s.CardinalQuality)
-            .ThenByDescending(s => s.DiagonalQuality)
-            .ThenBy(s => s.Spot.X)
-            .ThenBy(s => s.Spot.Y)
-            .ToArray();
+        public static ((int X, int Y) Spot, Cell Value) BestGuess(this Cell[,] board) 
+        {
+            throw new NotImplementedException();
+        }
+            //board.GetSpots()
+            //.Where(s => board[s.X, s.Y] == Cell.Unkown)
+            //.Select(s => (Spot: s,
+            //    CardinalQuality: 4-Math.Cardinals
+            //        .Select(d => (X: s.X + d.X, Y: s.Y + d.Y))
+            //        .Count(s => board.Contains(s.X, s.Y) && board[s.X, s.Y] == Cell.Unkown),
+            //    DiagonalQuality: 4-Math.Diagonals
+            //        .Select(d => (X: s.X + d.X, Y: s.Y + d.Y))
+            //        .Count(s => board.Contains(s.X, s.Y) && board[s.X, s.Y] == Cell.Unkown)))
+            //.OrderByDescending(s => s.CardinalQuality)
+            //.ThenByDescending(s => s.DiagonalQuality)
+            //.ThenBy(s => s.Spot.X)
+            //.ThenBy(s => s.Spot.Y)
+            //.ToArray();
     }
 }
