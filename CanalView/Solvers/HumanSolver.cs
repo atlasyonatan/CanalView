@@ -24,6 +24,8 @@ namespace CanalView.Solvers
             private int _currentColor = 1;
             private readonly Stack<(int X, int Y)> _guesses = new Stack<(int, int)>();
             //private bool exit = false;
+            private bool _firstTime = true;
+
 
             public EnumeratorObject(Cell[,] board)
             {
@@ -33,68 +35,90 @@ namespace CanalView.Solvers
 
             public bool MoveNext()
             {
-                if (!_guesses.Any())
+                if (_firstTime)
                 {
+                    _firstTime = false;
                     //first time?
 
-                    var success = _board.FillMusts();
-                    if (!success)
-                        return false;
+                    if (!_board.FillMusts()) return false;
                     var (guessSpot, guessValue) = _board.BestGuess();
                     _board[guessSpot.X, guessSpot.Y] = guessValue;
                     _colors[guessSpot.X, guessSpot.Y] = _currentColor;
                     _guesses.Push(guessSpot);
                 }
 
-                //first guess already inside board and stack
-                while(_guesses.TryPeek(out var guessSpot))
+                //
+                while (_currentColor > 0)
                 {
-                    var copy = _board.Copy();
-                    var success = copy.FillMusts(guessSpot.X, guessSpot.Y);
-                    
-                    if (success)
-                    {
-                        //debug for fillmusts logic:
-                        var legal = copy.LegalNumbers() && copy.LegalSquare();
-                        if (!legal)
-                            throw new InvalidOperationException("board filled with musts but is illegal!");
+                    // keep current value of current guess
+                    // clean board from current color
 
-                        //save changes to _board and mark them with _currentColor
-                        foreach (var spot in copy.GetSpots())
-                            if(copy[spot.X,spot.Y] != _board[spot.X, spot.Y])
-                                _colors[spot.X, spot.Y] = _currentColor;
-                        _board = copy;
+                    // aquire the guess that we will be working on in this iteration:
+                    // if (currentColor == _guess.Count()) && (more values to check for that guess spot)
+                    //     new value for same spot
+                    // else:
+                    //     new spot (in board)
 
-                        //check if board is completed
-                        var completed = _board.GetSpots().All(s => _board[s.X, s.Y] != Cell.Unkown);
-                        if (completed)
-                        {
-                            //debug for fillmusts logic:
-                            legal = _board.LegalPath();
-                            if (!legal)
-                                throw new InvalidOperationException("board is completed with musts but is no legal path!");
+                    // fill musts on newly aquired guess (in a copy)
+
+                    // if successful filling of musts (in the copy):
+                    //     save changes with new current color
+                    // else:
+                    //     continue (board already has the current guess so that next iteration will choose next guess accordingly)
 
 
-                            //check board is legal
-                            if (_board.LegalPath())
-                            {
-                                Current = _board.Copy();
-                                return true;
-                            }
-                                
-                        }
-                        else
-                        {
 
-                        }
 
-                    }
-                    else
-                    {
-                        //must be other guessValue
-                    }
-                    
-                    
+
+
+
+
+
+
+
+
+
+                    //var copy = _board.Copy();
+                    //var success = copy.FillMusts(guessSpot.X, guessSpot.Y);
+
+                    //if (success)
+                    //{
+                    //    //debug for fillmusts logic:
+                    //    var legal = copy.LegalNumbers() && copy.LegalSquare();
+                    //    if (!legal)
+                    //        throw new InvalidOperationException("board filled with musts but is illegal!");
+
+                    //    //save changes to _board and mark them with _currentColor
+                    //    foreach (var spot in copy.GetSpots())
+                    //        if (copy[spot.X, spot.Y] != _board[spot.X, spot.Y])
+                    //            _colors[spot.X, spot.Y] = _currentColor;
+                    //    _board = copy;
+
+                    //    //check if board is completed
+                    //    var completed = _board.GetSpots().All(s => _board[s.X, s.Y] != Cell.Unkown);
+                    //    if (completed)
+                    //    {
+                    //        //debug for fillmusts logic:
+                    //        legal = _board.LegalPath();
+                    //        if (!legal)
+                    //            throw new InvalidOperationException("board is completely filled with musts but is no legal path!");
+
+                    //        Current = _board.Copy();
+                    //        //
+                    //        return true;
+                    //    }
+                    //    else
+                    //    {
+
+                    //    }
+
+                    //}
+                    //else
+                    //{
+                    //    //must be other guessValue
+                    //}
+
+
                 }
                 return false;
 
@@ -137,7 +161,7 @@ namespace CanalView.Solvers
                 //        //put the spot back into the stack but with next value
                 //        _guesses.Push((guess.Spot, nextGuessValueIndex, guess.Color, guess.Index));
                 //    }
-                    
+
                 //    //current guess is unchecked
 
                 //    //clean board from prev guess
