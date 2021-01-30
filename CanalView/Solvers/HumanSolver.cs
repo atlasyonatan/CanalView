@@ -37,7 +37,6 @@ namespace CanalView.Solvers
                     // try FillMusts
                     var copy = _board.Copy();
                     var success = hasGuess ? copy.FillMusts(guess.Spot.X, guess.Spot.Y) : copy.FillMusts();
-                    //var success = copy.FillMusts();
                     if (!_foundPreviously && success)
                     {
                         // apply changes
