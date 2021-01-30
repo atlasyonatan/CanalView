@@ -9,7 +9,7 @@ namespace CanalView
         static void Main()
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            var board = Boards.Hard_12x12;
+            var board = Boards.Easy_5x5;
             Console.WriteLine(board.Tostring());
             Console.WriteLine();
 

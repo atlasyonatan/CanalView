@@ -119,17 +119,17 @@ namespace CanalView
         }
 
         public static bool LegalPath(this Cell[,] board) =>
-            !board.GetSpots().TryFirst(s => board[s.X, s.Y] == Cell.Full, out var spot) || 
+            !board.GetSpots().TryFirst(s => board[s.X, s.Y] == Cell.Full, out var spot) ||
             board.LegalPath(spot.X + spot.Y * board.GetLength(0));
 
         public static bool LegalPath(this Cell[,] board, int index)
         {
-            var width = board.GetLength(0);
-            var height = board.GetLength(1);
-            var size = width * height;
-            if (index >= size || board[index % width, index / width] != Cell.Full) return true;
-            var flooded = ((Cell[,])board.Clone()).FloodFill(index, Cell.Full + 1);
-            return !Enumerable.Range(0, size).Any(i => flooded[i % width, i / width] == Cell.Full);
+            var x = index % board.GetLength(0);
+            var y = index / board.GetLength(0);
+            if (!board.Contains(x, y) || board[x, y] != Cell.Full)
+                return true;
+            var flooded = board.Copy().FloodFill(x, y, Cell.Full + 1);
+            return !flooded.GetSpots().Any(s => flooded[s.X, s.Y] == Cell.Full);
         }
     }
 }

@@ -8,12 +8,8 @@ namespace CanalView
         public static readonly (int X, int Y)[] Diagonals = new (int, int)[] { (-1, -1), (-1, 1), (1, -1), (1, 1) };
         public static readonly (int X, int Y)[] ClockwiseDirections = new (int, int)[] { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
 
-        public static T[,] FloodFill<T>(this T[,] board, int index, T color) where T : IComparable
+        public static T[,] FloodFill<T>(this T[,] board, int x, int y, T color) where T : IComparable
         {
-            var width = board.GetLength(0);
-            var height = board.GetLength(1);
-            var x = index % width;
-            var y = index / width;
             var match = board[x, y];
             if (match.CompareTo(color) == 0) return board;
             void InnerFloodFill(int x, int y)
@@ -23,7 +19,7 @@ namespace CanalView
                 {
                     var newX = x + Cardinals[i].X;
                     var newY = y + Cardinals[i].Y;
-                    if (newX >= 0 && newX < width && newY >= 0 && newY < height && board[newX, newY].CompareTo(match) == 0)
+                    if (board.Contains(newX, newY) && board[newX, newY].CompareTo(match) == 0)
                         InnerFloodFill(newX, newY);
                 }
             }

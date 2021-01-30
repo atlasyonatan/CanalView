@@ -66,7 +66,7 @@ namespace CanalView
             if (!board.Contains(x, y) || board[x, y] != Cell.Full)
                 return true;
             var clone = board.Copy();
-            clone.FloodFill(x + y * clone.GetLength(0), CHUNK_COLOR);
+            clone.FloodFill(x, y, CHUNK_COLOR);
             if (clone.GetSpots().All(s => clone[s.X, s.Y] != Cell.Full))
                 return true;
 
@@ -115,7 +115,7 @@ namespace CanalView
             var chunkSpots = fullNeighbors.Where(n =>
             {
                 if (clone[n.X, n.Y] == CHUNK_COLOR) return false;
-                clone.FloodFill(n.X + n.Y * clone.GetLength(0), CHUNK_COLOR);
+                clone.FloodFill(n.X, n.Y, CHUNK_COLOR);
                 return true;
             });
 
@@ -141,7 +141,7 @@ namespace CanalView
             {
                 if (board[X, Y] != Cell.Unkown) continue;
                 var clone = board.Copy();
-                clone.FloodFill(X + Y * clone.GetLength(0), CHUNK_COLOR);
+                clone.FloodFill(X, Y, CHUNK_COLOR);
                 var chunkSpots = clone.GetSpots()
                     .Where(s => clone[s.X, s.Y] == CHUNK_COLOR)
                     .ToArray();
