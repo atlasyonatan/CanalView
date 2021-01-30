@@ -20,12 +20,7 @@ namespace CanalView.Solvers
         {
             private Cell[,] _board;
             private readonly int[,] _colors;
-            //private readonly Cell[] _fillOptions = new Cell[] { Cell.Full, Cell.Empty };
-            private int _currentColor = 1;
-            private readonly Stack<(int X, int Y)> _guesses = new Stack<(int, int)>();
-            //private bool exit = false;
-            private bool _firstTime = true;
-
+            private readonly Stack<((int X, int Y)Spot, Cell Value)> _guesses = new Stack<((int X, int Y) Spot, Cell Value)>();
 
             public EnumeratorObject(Cell[,] board)
             {
@@ -35,184 +30,50 @@ namespace CanalView.Solvers
 
             public bool MoveNext()
             {
-                if (_firstTime)
+                while (true)
                 {
-                    _firstTime = false;
-                    //first time?
+                    var hasGuess = _guesses.TryPeek(out var guess);
 
-                    if (!_board.FillMusts()) return false;
-                    var (guessSpot, guessValue) = _board.BestGuess();
-                    _board[guessSpot.X, guessSpot.Y] = guessValue;
-                    _colors[guessSpot.X, guessSpot.Y] = _currentColor;
-                    _guesses.Push(guessSpot);
+                    // try FillMusts
+                    var copy = _board.Copy();
+                    var success = hasGuess ? copy.FillMusts(guess.Spot.X, guess.Spot.Y) : copy.FillMusts();
+                    if (success)
+                    {
+                        // apply changes
+                        foreach (var spot in copy.GetSpots().Where(s=>copy[s.X,s.Y] != _board[s.X,s.Y]))
+                            _colors[spot.X, spot.Y] = _guesses.Count();
+                        _board = copy;
+
+                        // board is completed
+                        var completed = _board.GetSpots().All(s => _board[s.X, s.Y] != Cell.Unkown);
+                        if (completed)
+                            return true;
+
+                        // push and apply new guess
+                        var newGuess = BestGuess();
+                        _guesses.Push(newGuess);
+                        _board[newGuess.Spot.X, newGuess.Spot.Y] = newGuess.Value;
+                        _colors[newGuess.Spot.X, newGuess.Spot.Y] = _guesses.Count();
+                    }
+                    else
+                    {
+                        // TryPop
+                        hasGuess = _guesses.TryPop(out guess);
+                        if (!hasGuess) return false;
+                        
+                        // Clean
+                        CleanColor(_guesses.Count() + 1);
+
+                        // apply other value
+                        var otherValue = guess.Value switch
+                        {
+                            Cell.Full => Cell.Empty,
+                            _ => Cell.Full
+                        };
+                        _board[guess.Spot.X, guess.Spot.Y] = otherValue;
+                        _colors[guess.Spot.X, guess.Spot.Y] = _guesses.Count();
+                    }
                 }
-
-                //
-                while (_currentColor > 0)
-                {
-                    // keep current value of current guess
-                    // clean board from current color
-
-                    // aquire the guess that we will be working on in this iteration:
-                    // if (currentColor == _guess.Count()) && (more values to check for that guess spot)
-                    //     new value for same spot
-                    // else:
-                    //     new spot (in board)
-
-                    // fill musts on newly aquired guess (in a copy)
-
-                    // if successful filling of musts (in the copy):
-                    //     save changes with new current color
-                    // else:
-                    //     continue (board already has the current guess so that next iteration will choose next guess accordingly)
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    //var copy = _board.Copy();
-                    //var success = copy.FillMusts(guessSpot.X, guessSpot.Y);
-
-                    //if (success)
-                    //{
-                    //    //debug for fillmusts logic:
-                    //    var legal = copy.LegalNumbers() && copy.LegalSquare();
-                    //    if (!legal)
-                    //        throw new InvalidOperationException("board filled with musts but is illegal!");
-
-                    //    //save changes to _board and mark them with _currentColor
-                    //    foreach (var spot in copy.GetSpots())
-                    //        if (copy[spot.X, spot.Y] != _board[spot.X, spot.Y])
-                    //            _colors[spot.X, spot.Y] = _currentColor;
-                    //    _board = copy;
-
-                    //    //check if board is completed
-                    //    var completed = _board.GetSpots().All(s => _board[s.X, s.Y] != Cell.Unkown);
-                    //    if (completed)
-                    //    {
-                    //        //debug for fillmusts logic:
-                    //        legal = _board.LegalPath();
-                    //        if (!legal)
-                    //            throw new InvalidOperationException("board is completely filled with musts but is no legal path!");
-
-                    //        Current = _board.Copy();
-                    //        //
-                    //        return true;
-                    //    }
-                    //    else
-                    //    {
-
-                    //    }
-
-                    //}
-                    //else
-                    //{
-                    //    //must be other guessValue
-                    //}
-
-
-                }
-                return false;
-
-
-
-
-
-                //if (!_guesses.Any())
-                //{
-                //    if (exit) return false;
-                //    var legal = _board.FillMusts();
-                //    if (!legal) return false;
-
-                //    var hasUnknown = _board.GetSpots().TryFirst(s => _board[s.X, s.Y] == Cell.Unkown, out var unknownSpot);
-                //    if (!hasUnknown)
-                //    {
-                //        //board is completed
-                //        exit = true;
-                //        return _board.Legal();
-                //    }
-                //    else
-                //    {
-                //        //board is not compeleted
-
-                //        //push first guess
-                //        var top = _board.TopGuessSpots();
-                //        _guesses.Push((top[0].Spot, 0, 1, 0));
-                //    }
-                //}
-
-                ////check if has guesses
-                //while (_guesses.TryPop(out var guess))
-                //{
-                //    //already removed current guess from stack
-
-                //    //check if there's another value to guess in the same spot
-                //    var nextGuessValueIndex = guess.ValueIndex + 1;
-                //    if (nextGuessValueIndex < _fillOptions.Length)
-                //    {
-                //        //put the spot back into the stack but with next value
-                //        _guesses.Push((guess.Spot, nextGuessValueIndex, guess.Color, guess.Index));
-                //    }
-
-                //    //current guess is unchecked
-
-                //    //clean board from prev guess
-                //    CleanColor(guess.Color);
-
-                //    //check if current guess is legal and successful musts
-                //    var clone = _board.Copy();
-                //    var legal = clone.Legal(guess.Spot.X + guess.Spot.Y * _board.GetLength(0)) && clone.FillMusts(guess.Spot.X, guess.Spot.Y);
-                //    if (legal)
-                //    {
-                //        //changes are legal
-
-                //        //find changes
-                //        var changes = clone.GetSpots()
-                //            .Where(s => clone[s.X, s.Y] != _board[s.X, s.Y])
-                //            .ToArray();
-
-                //        if (changes.Any())
-                //        {
-                //            //record changes
-                //            _board = clone;
-
-                //            //mark changes with current color
-                //            foreach (var (X, Y) in changes)
-                //                _colors[X, Y] = guess.Color;
-                //        }
-
-                //        //current guess is legal
-
-                //        //populate stack with next guess spot
-                //        var top = _board.TopGuessSpots();
-                //        var nextGuessSpotIndex = guess.Index + 1;
-                //        if (nextGuessSpotIndex < top.Length)
-                //        {
-                //            //found next guess spot
-                //            _guesses.Push(guess);
-                //            _guesses.Push((top[nextGuessSpotIndex].Spot, 0, guess.Color, nextGuessSpotIndex));
-                //        }
-                //        else
-                //        {
-                //            //no more guess spots
-
-                //            //board is completed and legal -> will return true
-
-                //            //already handled: next guess spot is the same spot but next value
-
-                //            return true;
-                //        }
-                //    }
-                //}
-                //return false;
             }
 
             private void CleanColor(int color)
@@ -222,6 +83,12 @@ namespace CanalView.Solvers
                     _board[X, Y] = Cell.Unkown;
                     _colors[X, Y] = 0;
                 }
+            }
+
+            private ((int X, int Y) Spot, Cell Value) BestGuess()
+            {
+                var first = _board.GetSpots().First(s => _board[s.X, s.Y] == Cell.Unkown);
+                return (first, Cell.Full);
             }
 
             public void Reset() => throw new NotSupportedException();
