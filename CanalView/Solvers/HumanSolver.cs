@@ -21,6 +21,7 @@ namespace CanalView.Solvers
             private Cell[,] _board;
             private readonly int[,] _colors;
             private readonly Stack<((int X, int Y)Spot, Cell Value)> _guesses = new Stack<((int X, int Y) Spot, Cell Value)>();
+            private bool _foundPreviously = false;
 
             public EnumeratorObject(Cell[,] board)
             {
@@ -30,14 +31,14 @@ namespace CanalView.Solvers
 
             public bool MoveNext()
             {
+                var hasGuess = _guesses.TryPeek(out var guess);
                 while (true)
                 {
-                    var hasGuess = _guesses.TryPeek(out var guess);
-
                     // try FillMusts
                     var copy = _board.Copy();
                     var success = hasGuess ? copy.FillMusts(guess.Spot.X, guess.Spot.Y) : copy.FillMusts();
-                    if (success)
+                    //var success = copy.FillMusts();
+                    if (!_foundPreviously && success)
                     {
                         // apply changes
                         foreach (var spot in copy.GetSpots().Where(s=>copy[s.X,s.Y] != _board[s.X,s.Y]))
@@ -47,16 +48,23 @@ namespace CanalView.Solvers
                         // board is completed
                         var completed = _board.GetSpots().All(s => _board[s.X, s.Y] != Cell.Unkown);
                         if (completed)
+                        {
+                            _foundPreviously = true;
+                            Current = _board.Copy();
                             return true;
+                        }
 
                         // push and apply new guess
                         var newGuess = BestGuess();
                         _guesses.Push(newGuess);
                         _board[newGuess.Spot.X, newGuess.Spot.Y] = newGuess.Value;
                         _colors[newGuess.Spot.X, newGuess.Spot.Y] = _guesses.Count();
+                        guess = newGuess;
                     }
                     else
                     {
+                        _foundPreviously = false;
+                        
                         // TryPop
                         hasGuess = _guesses.TryPop(out guess);
                         if (!hasGuess) return false;
