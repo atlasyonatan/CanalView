@@ -9,7 +9,7 @@ namespace CanalView
         static void Main()
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            var board = Boards.Easy_5x5;
+            var board = Puzzles.Easy_5x5;
             Console.WriteLine(board.Tostring());
             Console.WriteLine();
 
@@ -20,7 +20,7 @@ namespace CanalView
             //Console.WriteLine($"{sw.Elapsed:c}");
             //Console.WriteLine(success ? board.Tostring() : "unsuccessful :c");
 
-            var solutions = new HumanSolver().Solve(board);
+            var solutions = new InferSolver().Solve(board);
             int i = 0;
             var sw = new Stopwatch();
             TimeSpan total = TimeSpan.Zero;

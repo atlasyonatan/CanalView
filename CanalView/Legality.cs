@@ -3,7 +3,7 @@ using static CanalView.Math;
 
 namespace CanalView
 {
-    public static class Rules
+    public static class Legality
     {
         public static bool Legal(this Cell[,] board) =>
             board.LegalSquare() &&
@@ -58,14 +58,15 @@ namespace CanalView
                     {
                         var newX = x + dx * scale;
                         var newY = y + dy * scale;
-                        if (!board.Contains(newX, newY)) break;
-                        if (board[newX, newY] == Cell.Empty || board[newX, newY] >= 0) break;
+                        if (!board.Contains(newX, newY) || board[newX, newY] == Cell.Empty || board[newX, newY] >= 0)
+                            break;
                         if (foundUnknown || board[newX, newY] == Cell.Unkown)
                         {
                             foundUnknown = true;
                             countUnknown++;
                         }
-                        else if (board[newX, newY] == Cell.Full && ++countFull > cellNumber) return false;
+                        else if (board[newX, newY] == Cell.Full && ++countFull > cellNumber) 
+                            return false;
                         scale++;
                     }
                 }

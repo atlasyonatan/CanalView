@@ -5,10 +5,9 @@ using System.Linq;
 
 namespace CanalView.Solvers
 {
-    public class HumanSolver : ISolver
+    public class InferSolver : ISolver
     {
         public IEnumerable<Cell[,]> Solve(Cell[,] board) => new EnumerableObject(board);
-
         private class EnumerableObject : IEnumerable<Cell[,]>
         {
             private readonly Cell[,] _board;

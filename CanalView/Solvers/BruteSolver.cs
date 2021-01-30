@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace CanalView.Solvers
 {
-    public class GuessAndCheck : ISolver
+    public class BruteSolver : ISolver
     {
         public IEnumerable<Cell[,]> Solve(Cell[,] board) => new EnumerableObject(board);
         private class EnumerableObject : IEnumerable<Cell[,]>
