@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace CanalView.Solvers
 {
-    public class GuessAndCheck : ISolver
+    public class BruteSolver : ISolver
     {
         public IEnumerable<Cell[,]> Solve(Cell[,] board) => new EnumerableObject(board);
         private class EnumerableObject : IEnumerable<Cell[,]>
@@ -18,42 +18,36 @@ namespace CanalView.Solvers
         private class EnumeratorObject : IEnumerator<Cell[,]>
         {
             private readonly Cell[,] _board;
-            private readonly int[] _unknownSpots;
-            private readonly int _width;
-            private readonly int _height;
+            private readonly (int X, int Y)[] _unknowns;
             private readonly Cell[] _fillOptions = new Cell[] { Cell.Full, Cell.Empty };
-            private int _spotIndex = 0;
+            private int _index = 0;
 
             public EnumeratorObject(Cell[,] board)
             {
                 _board = board.Copy();
-                _width = _board.GetLength(0);
-                _height = _board.GetLength(1);
-                _unknownSpots = Enumerable.Range(0, _width * _height)
-                    .Where(spot => _board[spot % _width, spot / _width] == Cell.Unkown)
+                _unknowns = _board.GetSpots()
+                    .Where(s => _board[s.X, s.Y] == Cell.Unkown)
                     .ToArray();
             }
 
             public bool MoveNext()
             {
-                while (_spotIndex >= 0)
+                while (_index >= 0)
                 {
-                    var spot = _unknownSpots[_spotIndex];
-                    var x = spot % _width;
-                    var y = spot / _width;
-                    var cell = _board[x, y];
+                    var (X, Y) = _unknowns[_index];
+                    var cell = _board[X, Y];
                     int nextGuessIndex = cell == Cell.Unkown ? 0 : Array.IndexOf(_fillOptions, cell) + 1;
                     if (nextGuessIndex >= _fillOptions.Length)
                     {
-                        _board[x, y] = Cell.Unkown;
-                        _spotIndex--;
+                        _board[X, Y] = Cell.Unkown;
+                        _index--;
                         continue;
                     }
-                    _board[x, y] = _fillOptions[nextGuessIndex];
-                    if (_board.LegalSquare(spot) && _board.LegalNumbers(spot))
-                        if (_spotIndex < _unknownSpots.Length - 1)
-                            _spotIndex++;
-                        else if ((_board[x, y] == Cell.Full && _board.LegalPath(spot)) || (_board[x, y] != Cell.Full && _board.LegalPath()))
+                    _board[X, Y] = _fillOptions[nextGuessIndex];
+                    if (_board.LegalSquare(X, Y) && _board.LegalNumbers(X, Y))
+                        if (_index < _unknowns.Length - 1)
+                            _index++;
+                        else if ((_board[X, Y] == Cell.Full && _board.LegalPath(X, Y)) || (_board[X, Y] != Cell.Full && _board.LegalPath()))
                         {
                             Current = _board.Copy();
                             return true;
