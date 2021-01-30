@@ -12,7 +12,7 @@ namespace CanalView
 
         public static bool Legal(this Cell[,] board, int index) =>
             board.LegalSquare(index) &&
-            board.LegalNumbers(index);
+            board.LegalNumbers(index % board.GetLength(0), index / board.GetLength(0));
 
         public static bool LegalSquare(this Cell[,] board)
         {
@@ -59,19 +59,14 @@ namespace CanalView
             var height = board.GetLength(1);
             var size = width * height;
             for (var i = 0; i < size; i++)
-                if (board[i % width, i / width] >= 0 && !board.LegalNumbers(i))
+                if (board[i % width, i / width] >= 0 && !board.LegalNumbers(i % board.GetLength(0), i / board.GetLength(0)))
                     return false;
             return true;
         }
 
-        public static bool LegalNumbers(this Cell[,] board, int index)
+        public static bool LegalNumbers(this Cell[,] board, int x, int y)
         {
-            var width = board.GetLength(0);
-            var height = board.GetLength(1);
-            var size = width * height;
-            if (index >= size) return true;
-            var x = index % width;
-            var y = index / width;
+            if (!board.Contains(x, y)) return true;
             if (board[x, y] >= 0)
             {
                 var cellNumber = (int)board[x, y];
@@ -85,7 +80,7 @@ namespace CanalView
                     {
                         var newX = x + dx * scale;
                         var newY = y + dy * scale;
-                        if (newX < 0 || newX >= width || newY < 0 || newY >= height) break;
+                        if (!board.Contains(newX, newY)) break;
                         if (board[newX, newY] == Cell.Empty || board[newX, newY] >= 0) break;
                         if (foundUnknown || board[newX, newY] == Cell.Unkown)
                         {
@@ -105,10 +100,10 @@ namespace CanalView
                 {
                     var newX = x + dx * scale;
                     var newY = y + dy * scale;
-                    if (newX < 0 || newX >= width || newY < 0 || newY >= height) break;
+                    if (!board.Contains(newX, newY)) break;
                     if (board[newX, newY] >= 0)
                     {
-                        if (!board.LegalNumbers(newY * width + newX))
+                        if (!board.LegalNumbers(newX, newY))
                             return false;
                         break;
                     }
@@ -120,12 +115,10 @@ namespace CanalView
 
         public static bool LegalPath(this Cell[,] board) =>
             !board.GetSpots().TryFirst(s => board[s.X, s.Y] == Cell.Full, out var spot) ||
-            board.LegalPath(spot.X + spot.Y * board.GetLength(0));
+            board.LegalPath(spot.X, spot.Y);
 
-        public static bool LegalPath(this Cell[,] board, int index)
+        public static bool LegalPath(this Cell[,] board, int x, int y)
         {
-            var x = index % board.GetLength(0);
-            var y = index / board.GetLength(0);
             if (!board.Contains(x, y) || board[x, y] != Cell.Full)
                 return true;
             var flooded = board.Copy().FloodFill(x, y, Cell.Full + 1);

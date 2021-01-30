@@ -35,11 +35,11 @@ namespace CanalView.Test
         {
             var board = Board.Blank(3, 3);
             board[1, 1] = (Cell)4;
-            Assert.AreEqual(0, Enumerable.Range(0, 9).Where(i => !board.LegalNumbers(i)).Count());
+            Assert.AreEqual(0, Enumerable.Range(0, 9).Where(i => !board.LegalNumbers(i % board.GetLength(0), i / board.GetLength(0))).Count());
             Assert.IsTrue(board.LegalNumbers());
             board[1, 1] = (Cell)0;
             board[1, 0] = Cell.Full;
-            Assert.AreEqual(5, Enumerable.Range(0, 9).Where(i => !board.LegalNumbers(i)).Count());
+            Assert.AreEqual(5, Enumerable.Range(0, 9).Where(i => !board.LegalNumbers(i % board.GetLength(0), i / board.GetLength(0))).Count());
             Assert.IsFalse(board.LegalNumbers());
         }
 

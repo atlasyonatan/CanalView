@@ -50,10 +50,10 @@ namespace CanalView.Solvers
                         continue;
                     }
                     _board[x, y] = _fillOptions[nextGuessIndex];
-                    if (_board.LegalSquare(spot) && _board.LegalNumbers(spot))
+                    if (_board.LegalSquare(spot) && _board.LegalNumbers(spot % _board.GetLength(0), spot / _board.GetLength(0)))
                         if (_spotIndex < _unknownSpots.Length - 1)
                             _spotIndex++;
-                        else if ((_board[x, y] == Cell.Full && _board.LegalPath(spot)) || (_board[x, y] != Cell.Full && _board.LegalPath()))
+                        else if ((_board[x, y] == Cell.Full && _board.LegalPath(spot % _board.GetLength(0), spot / _board.GetLength(0))) || (_board[x, y] != Cell.Full && _board.LegalPath()))
                         {
                             Current = _board.Copy();
                             return true;
