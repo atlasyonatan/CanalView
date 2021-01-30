@@ -40,8 +40,8 @@ namespace CanalView.Solvers
                     if (!_foundPreviously && success)
                     {
                         // apply changes
-                        foreach (var spot in copy.GetSpots().Where(s=>copy[s.X,s.Y] != _board[s.X,s.Y]))
-                            _colors[spot.X, spot.Y] = _guesses.Count();
+                        foreach (var (X, Y) in copy.GetSpots().Where(s=>copy[s.X,s.Y] != _board[s.X,s.Y]))
+                            _colors[X, Y] = _guesses.Count();
                         _board = copy;
 
                         // board is completed

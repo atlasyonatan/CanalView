@@ -28,9 +28,6 @@ namespace CanalView
 
         public static bool FillMusts_Full_LShape(this Cell[,] board, int x, int y)
         {
-            //System.Console.WriteLine("Full_LShape");
-            //System.Console.WriteLine(board.Tostring());
-            //System.Console.WriteLine();
             if (!board.Contains(x, y) || board[x, y] != Cell.Full)
                 return true;
             int fullSpots = 0;
@@ -66,9 +63,6 @@ namespace CanalView
 
         public static bool FillMusts_Full_Chunk(this Cell[,] board, int x, int y)
         {
-            //System.Console.WriteLine("Full_Chunk");
-            //System.Console.WriteLine(board.Tostring());
-            //System.Console.WriteLine();
             if (!board.Contains(x, y) || board[x, y] != Cell.Full)
                 return true;
             var clone = board.Copy();
@@ -109,9 +103,6 @@ namespace CanalView
 
         public static bool FillMusts_Empty_FullNeighbors(this Cell[,] board, int x, int y, (int X, int Y)? cause = null)
         {
-            //System.Console.WriteLine("Empty_FullNeighbors");
-            //System.Console.WriteLine(board.Tostring());
-            //System.Console.WriteLine();
             if (!board.Contains(x, y) || board[x, y] != Cell.Empty)
                 return true;
 
@@ -134,9 +125,6 @@ namespace CanalView
 
         public static bool FillMusts_Empty_UnknownNeighbors(this Cell[,] board, int x, int y)
         {
-            //System.Console.WriteLine("Empty_UnknownNeighbors");
-            //System.Console.WriteLine(board.Tostring());
-            //System.Console.WriteLine();
             if (!board.Contains(x, y) ||
                 board[x, y] != Cell.Empty ||
                 board.GetSpots().All(s => board[s.X, s.Y] != Cell.Full))
@@ -194,9 +182,6 @@ namespace CanalView
 
         public static bool FillMusts_Number(this Cell[,] board, int x, int y)
         {
-            //System.Console.WriteLine("Number");
-            //System.Console.WriteLine(board.Tostring());
-            //System.Console.WriteLine();
             if (!board.Contains(x, y) || board[x, y] < 0)
                 return true;
 

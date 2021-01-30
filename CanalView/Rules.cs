@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using static CanalView.Math;
 
 namespace CanalView
@@ -132,7 +131,5 @@ namespace CanalView
             var flooded = ((Cell[,])board.Clone()).FloodFill(index, Cell.Full + 1);
             return !Enumerable.Range(0, size).Any(i => flooded[i % width, i / width] == Cell.Full);
         }
-
-        public static readonly IEnumerable<Cell> FillOptions = new Cell[] { Cell.Full, Cell.Empty };
     }
 }
