@@ -11,7 +11,7 @@ namespace CanalView
             board.LegalNumbers();
 
         public static bool Legal(this Cell[,] board, int index) =>
-            board.LegalSquare(index) &&
+            board.LegalSquare(index % board.GetLength(0), index / board.GetLength(0)) &&
             board.LegalNumbers(index % board.GetLength(0), index / board.GetLength(0));
 
         public static bool LegalSquare(this Cell[,] board)
@@ -30,39 +30,17 @@ namespace CanalView
             return true;
         }
 
-        public static bool LegalSquare(this Cell[,] board, int index)
-        {
-            var width = board.GetLength(0);
-            var height = board.GetLength(1);
-            var size = width * height;
-            if (index >= size) return true;
-            var x = index % width;
-            var y = index / width;
-            if (board[x, y] == Cell.Full)
-            {
-                foreach (var (dx, dy) in Diagonals)
-                {
-                    var newX = x + dx;
-                    var newY = y + dy;
-                    if (newX < 0 || newX >= width || newY < 0 || newY >= height) continue;
-                    if (board[x, newY] == Cell.Full &&
-                        board[newX, y] == Cell.Full &&
-                        board[newX, newY] == Cell.Full) return false;
-                }
-            }
-            return true;
-        }
+        public static bool LegalSquare(this Cell[,] board, int x, int y) =>
+            !board.Contains(x, y) ||
+            board[x, y] != Cell.Full ||
+            !Diagonals.Select(d => (X: x + d.X, Y: y + d.Y)).Any(s =>
+                board.Contains(s.X, s.Y) &&
+                board[x, s.Y] == Cell.Full &&
+                board[s.X, y] == Cell.Full &&
+                board[s.X, s.Y] == Cell.Full);
 
-        public static bool LegalNumbers(this Cell[,] board)
-        {
-            var width = board.GetLength(0);
-            var height = board.GetLength(1);
-            var size = width * height;
-            for (var i = 0; i < size; i++)
-                if (board[i % width, i / width] >= 0 && !board.LegalNumbers(i % board.GetLength(0), i / board.GetLength(0)))
-                    return false;
-            return true;
-        }
+        public static bool LegalNumbers(this Cell[,] board) => !board.GetSpots()
+            .Any(s => board[s.X, s.Y] >= 0 && !board.LegalNumbers(s.X, s.Y));
 
         public static bool LegalNumbers(this Cell[,] board, int x, int y)
         {
