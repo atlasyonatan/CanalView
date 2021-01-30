@@ -10,9 +10,9 @@ namespace CanalView
             board.LegalPath() &&
             board.LegalNumbers();
 
-        public static bool Legal(this Cell[,] board, int index) =>
-            board.LegalSquare(index % board.GetLength(0), index / board.GetLength(0)) &&
-            board.LegalNumbers(index % board.GetLength(0), index / board.GetLength(0));
+        public static bool Legal(this Cell[,] board, int x, int y) =>
+            board.LegalSquare(x, y) &&
+            board.LegalNumbers(x, y);
 
         public static bool LegalSquare(this Cell[,] board)
         {
