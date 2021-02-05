@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using static CanalView.Math;
 
@@ -43,11 +43,11 @@ namespace CanalView
             for (var i = 0; i < 8; i += 2)
             {
                 var mask = 5 << i;
-                if ((fullSpots & mask) == mask) mustsArr |= 2 << i;
+                if ((fullSpots & mask) == mask) mustsArr |= (2 << i) % 255;
                 mask = 6 << i;
-                if ((fullSpots & mask) == mask) mustsArr |= 1 << i;
+                if ((fullSpots & mask) == mask) mustsArr |= (1 << i) % 255;
                 mask <<= 1;
-                if ((fullSpots & mask) == mask) mustsArr |= 16 << i;
+                if ((fullSpots & mask) == mask) mustsArr |= (16 << i) % 255;
             }
             var musts = Enumerable.Range(0, 8)
                 .Where(i => (mustsArr & 1 << i) > 0)
