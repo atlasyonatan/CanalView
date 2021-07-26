@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace CanalView
 {
-    public static class Math
+    public static class Array2DExtensions
     {
         public static readonly (int X, int Y)[] Cardinals = new (int, int)[] { (0, -1), (-1, 0), (0, 1), (1, 0) };
         public static readonly (int X, int Y)[] Diagonals = new (int, int)[] { (-1, -1), (-1, 1), (1, -1), (1, 1) };
