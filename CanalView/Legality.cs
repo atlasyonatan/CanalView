@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using static CanalView.Math;
+using static CanalView.Array2DExtensions;
 
 namespace CanalView
 {
