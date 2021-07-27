@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using CanalView;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace CanalView.Solvers
+namespace PuzzleSolving.Solvers
 {
     public class InferSolver : ISolver
     {
@@ -22,7 +23,7 @@ namespace CanalView.Solvers
                 {
                     // apply changes
                     foreach (var (x, y) in copy.GetSpots().Where(s => copy[s.X, s.Y] != board[s.X, s.Y]))
-                        colors[x, y] = guesses.Count();
+                        colors[x, y] = guesses.Count;
                     board = copy;
 
                     // board is completed
@@ -39,7 +40,7 @@ namespace CanalView.Solvers
                     var newGuess = BestGuess(board);
                     guesses.Push(newGuess);
                     board[newGuess.Spot.X, newGuess.Spot.Y] = newGuess.Value;
-                    colors[newGuess.Spot.X, newGuess.Spot.Y] = guesses.Count();
+                    colors[newGuess.Spot.X, newGuess.Spot.Y] = guesses.Count;
                     guess = newGuess;
                 }
                 else
@@ -52,7 +53,7 @@ namespace CanalView.Solvers
                         yield break;
 
                     // Clean
-                    var color = guesses.Count() + 1;
+                    var color = guesses.Count + 1;
                     foreach (var (X, Y) in board.GetSpots().Where(s => colors[s.X, s.Y] >= color).ToArray())
                     {
                         board[X, Y] = Cell.Unkown;
@@ -66,7 +67,7 @@ namespace CanalView.Solvers
                         _ => Cell.Full
                     };
                     board[guess.Spot.X, guess.Spot.Y] = otherValue;
-                    colors[guess.Spot.X, guess.Spot.Y] = guesses.Count();
+                    colors[guess.Spot.X, guess.Spot.Y] = guesses.Count;
                 }
             }
         }

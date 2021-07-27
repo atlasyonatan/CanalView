@@ -1,7 +1,8 @@
-﻿using System.Linq;
+﻿using CanalView;
+using System.Linq;
 using static CanalView.Array2DExtensions;
 
-namespace CanalView
+namespace PuzzleSolving
 {
     public static class Legality
     {
@@ -65,12 +66,12 @@ namespace CanalView
                             foundUnknown = true;
                             countUnknown++;
                         }
-                        else if (board[newX, newY] == Cell.Full && ++countFull > cellNumber) 
+                        else if (board[newX, newY] == Cell.Full && ++countFull > cellNumber)
                             return false;
                         scale++;
                     }
                 }
-                return (countUnknown + countFull >= cellNumber) && (cellNumber != 0 || countFull <= 0);
+                return countUnknown + countFull >= cellNumber && (cellNumber != 0 || countFull <= 0);
             }
             foreach (var (dx, dy) in Cardinals)
             {

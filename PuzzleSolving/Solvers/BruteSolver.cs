@@ -1,8 +1,9 @@
-﻿using System;
+﻿using CanalView;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CanalView.Solvers
+namespace PuzzleSolving.Solvers
 {
     public class BruteSolver : ISolver
     {
@@ -26,10 +27,10 @@ namespace CanalView.Solvers
                     continue;
                 }
                 board[x, y] = FillOptions[nextGuessIndex];
-                if (Legality.LegalSquare(board, x, y) && Legality.LegalNumbers(board, x, y))
+                if (board.LegalSquare(x, y) && board.LegalNumbers(x, y))
                     if (i < unknowns.Length - 1)
                         i++;
-                    else if ((board[x, y] == Cell.Full && Legality.LegalPath(board, x, y)) || (board[x, y] != Cell.Full && Legality.LegalPath(board)))
+                    else if (board[x, y] == Cell.Full && board.LegalPath(x, y) || board[x, y] != Cell.Full && board.LegalPath())
                         yield return board.Copy();
             }
         }

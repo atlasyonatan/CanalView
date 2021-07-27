@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using CanalView;
+using System.Collections.Generic;
 
-namespace CanalView
+namespace PuzzleSolving
 {
     public interface ISolver
     {

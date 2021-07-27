@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CanalView
+namespace PuzzleSolving
 {
     public static class EnumerableExtensions
     {

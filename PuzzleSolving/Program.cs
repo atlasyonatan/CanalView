@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
-using CanalView.Solvers;
+using CanalView;
+using PuzzleSolving.Solvers;
 
-namespace CanalView
+namespace PuzzleSolving
 {
     class Program
     {
-        static void Main()
+        static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             var board = Puzzles.Easy_5x5;
