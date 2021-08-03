@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PuzzleGenerator
 {
-    public interface IPuzzleGenerator
+    public interface IBoardGenerator
     {
         IEnumerable<Cell[,]> Generate();
     }
