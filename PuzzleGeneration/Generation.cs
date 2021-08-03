@@ -1,6 +1,9 @@
 ﻿using CanalView;
 using System;
 using System.Linq;
+using static PuzzleSolving.Musts;
+using static CanalView.Array2DExtensions;
+using System.Collections.Generic;
 
 namespace PuzzleGeneration
 {
@@ -9,27 +12,32 @@ namespace PuzzleGeneration
         public static (int x, int y) RandomPosition<T>(this T[,] arr, Random random) =>
             (random.Next(0, arr.GetLength(0) - 1), random.Next(0, arr.GetLength(1) - 1));//todo: check which 2darr dimension corrisponds to width and height
 
-        public static Cell[,] GenerateRandomPath(this Cell[,] board, (int x, int y) start, Random random, double fillChance)
+        public static Cell[,] GenerateRandomPath(this Cell[,] board, int x, int y, Random random, double fillChance)
         {
             void RandomNeighborFill(int x, int y)
             {
-                if (board[x, y] != Cell.Empty)
-                    return;
                 if (random.NextDouble() < fillChance)
                 {
                     board[x, y] = Cell.Full;
+                    var musts = board.GetMusts_Full_LShape(x, y);
+                    foreach (var must in musts)
+                        board.TryApplyMust(must);//todo: this violates rules for some reason.
+                        //board[must.Position.x, must.Position.y] = must.CellType;
 
-                    //todo: fillmusts L shape
-                }
-                var neighbors = Array2DExtensions.Cardinals
-                    .Select(d => (x: x + d.X, y: y + d.Y))
-                    .Where(p => board.Contains(p.x, p.y));
-                foreach (var neighbor in neighbors)
-                {
-
+                    var neighbors = Cardinals.Select(d => (x: x + d.X, y: y + d.Y))
+                        .Where(p => board.Contains(p.x, p.y) && board[p.x, p.y] == Cell.Unkown);
+                    foreach (var neighbor in neighbors)
+                        RandomNeighborFill(neighbor.x, neighbor.y);
                 }
             }
-            throw new NotImplementedException();
+            RandomNeighborFill(x, y);
+            return board;
+        }
+
+        public static T RandomItem<T>(this IEnumerable<T> source, Random random)
+        {
+            var arr = source.ToArray();
+            return arr[random.Next(arr.Length)];
         }
     }
 }

@@ -18,7 +18,7 @@ namespace PuzzleSolving.Solvers
             {
                 // try FillMusts
                 var copy = board.Copy();
-                var success = hasGuess ? copy.FillMusts(guess.Spot.X, guess.Spot.Y) : copy.FillMusts();
+                var success = hasGuess ? copy.ApplyMustsRecursively(guess.Spot.X, guess.Spot.Y) : copy.ApplyMustsRecursively();
                 if (!foundPreviously && success)
                 {
                     // apply changes
