@@ -13,52 +13,60 @@ namespace PuzzleSolving
         {
             public (int x, int y) Position;
             public Cell CellType;
+            public bool Excludes = false;
             public (int x, int y) Cause;
         }
 
         #region ApplyMusts
-        public static bool ApplyMustsRecursively(this Cell[,] board) =>
-            board.GetSpots().All(s => board.ApplyMustsRecursively(s.X, s.Y));
-        public static bool ApplyMustsRecursively(this Cell[,] board, int x, int y)
+        public static bool ApplyMustsRecursively(this Cell[,] board) => board.GetSpots()
+            .Where(s => board[s.X, s.Y] != Cell.Unkown)
+            .All(s => board.ApplyMustsRecursively(s.X, s.Y, null));
+        public static bool ApplyMustsRecursively(this Cell[,] board, int x, int y, (int X, int Y)? cause)
         {
-            var musts = board.GetMusts(x, y).ToArray();
+            var enumerable = board.GetMusts(x, y, cause);
+            if (enumerable == null)
+                return false;
+            var musts = enumerable.ToArray();
             return musts.Length == 0 || (
                 musts.All(must => board.TryApplyMust(must)) &&
-                musts.All(must => board.ApplyMustsRecursively(must.Position.x, must.Position.y)));
+                musts.All(must => board.ApplyMustsRecursively(must.Position.x, must.Position.y, must.Cause)));
+            //if (musts.Length == 0)
+            //    return true;
+            //var a = musts.All(must => board.TryApplyMust(must));
+            //Console.WriteLine(board.Tostring());
+            //Console.WriteLine();
+            //return a && musts.All(must => board.ApplyMustsRecursively(must.Position.x, must.Position.y, must.Cause));
         }
         public static bool TryApplyMust(this Cell[,] board, Must must)
         {
             var (x, y) = must.Position;
-            if (board[x, y] != must.CellType)
+            if (must.Excludes)
+                return board[x, y] != must.CellType;
+            if (board[x, y] == must.CellType)
+                return true;
+            if (board[x, y] == Cell.Unkown)
             {
-                if (board[x, y] == Cell.Unkown)
-                {
-                    board[x, y] = must.CellType;
-                    return true;
-                }
-                return false;
+                board[x, y] = must.CellType;
+                return true;
             }
-            return true;
+            return false;
         }
         #endregion
 
         #region GetMusts
         public const Cell CHUNK_COLOR = (Cell)int.MinValue;
-        public static IEnumerable<Must> GetMusts(this Cell[,] board, int x, int y)
+        public static IEnumerable<Must> GetMusts(this Cell[,] board, int x, int y, (int X, int Y)? cause) => board[x, y] switch
         {
-            return board[x, y] switch
-            {
-                Cell.Empty => board.GetMusts_Empty(x, y),
-                Cell.Full => board.GetMusts_Full(x, y),
-                Cell.Unkown => Enumerable.Empty<Must>(),
-                _ => board.GetMusts_Number(x, y)
-            };
-        }
+            Cell.Empty => board.GetMusts_Empty(x, y, cause),
+            Cell.Full => board.GetMusts_Full(x, y, cause),
+            Cell.Unkown => Enumerable.Empty<Must>(),
+            _ => board.GetMusts_Number(x, y)
+        };
 
         #region Full
-        public static IEnumerable<Must> GetMusts_Full(this Cell[,] board, int x, int y) => EnumerableExtensions.ContactIfNotNull(
+        public static IEnumerable<Must> GetMusts_Full(this Cell[,] board, int x, int y, (int X, int Y)? cause) => EnumerableExtensions.ContactIfNotNull(
             () => board.GetMusts_Full_LShape(x, y),
-            () => board.GetMusts_Full_ConnectNumbers(x, y),
+            () => board.GetMusts_Full_ConnectNumbers(x, y, cause),
             () => board.GetMusts_Full_Chunk(x, y));
         public static IEnumerable<Must> GetMusts_Full_LShape(this Cell[,] board, int x, int y)
         {
@@ -87,7 +95,7 @@ namespace PuzzleSolving
             return Enumerable.Range(0, 8)
                 .Where(i => (mustsArr & 1 << i) > 0)
                 .Select(i => (X: x + ClockwiseDirections[i].X, Y: y + ClockwiseDirections[i].Y))
-                .Select(p => new Must() { Cause = cause, CellType = Cell.Empty, Position = p });
+                .Select(p => new Must() { Cause = cause, CellType = Cell.Full, Position = p, Excludes = true });
         }
         public static IEnumerable<Must> GetMusts_Full_Chunk(this Cell[,] board, int x, int y)
         {
@@ -111,18 +119,18 @@ namespace PuzzleSolving
                 return chunkExits.Select(p => new Must() { Cause = cause, CellType = Cell.Full, Position = p });
             return Enumerable.Empty<Must>();
         }
-        public static IEnumerable<Must> GetMusts_Full_ConnectNumbers(this Cell[,] board, int x, int y) =>
-            board[x, y] != Cell.Full ? Enumerable.Empty<Must>() : board.GetMusts_ConnectNumbers(x, y);
+        public static IEnumerable<Must> GetMusts_Full_ConnectNumbers(this Cell[,] board, int x, int y, (int X, int Y)? cause) =>
+            board[x, y] != Cell.Full ? Enumerable.Empty<Must>() : board.GetMusts_ConnectNumbers(x, y, cause);
         #endregion
 
         #region Empty
-        public static IEnumerable<Must> GetMusts_Empty(this Cell[,] board, int x, int y) => EnumerableExtensions.ContactIfNotNull(
-            () => board.GetMusts_Empty_ConnectNumbers(x, y),
-            () => board.GetMusts_Empty_FullNeighbors(x, y),
+        public static IEnumerable<Must> GetMusts_Empty(this Cell[,] board, int x, int y, (int X, int Y)? cause) => EnumerableExtensions.ContactIfNotNull(
+            () => board.GetMusts_Empty_ConnectNumbers(x, y, cause),
+            () => board.GetMusts_Empty_FullNeighbors(x, y, cause),
             () => board.GetMusts_Empty_UnknownNeighbors(x, y));
-        public static IEnumerable<Must> GetMusts_Empty_ConnectNumbers(this Cell[,] board, int x, int y, (int X, int Y)? cause = null) =>
-            board[x, y] != Cell.Empty ? Enumerable.Empty<Must>() : board.GetMusts_ConnectNumbers(x, y);
-        public static IEnumerable<Must> GetMusts_Empty_FullNeighbors(this Cell[,] board, int x, int y, (int X, int Y)? cause = null)
+        public static IEnumerable<Must> GetMusts_Empty_ConnectNumbers(this Cell[,] board, int x, int y, (int X, int Y)? cause) =>
+            board[x, y] != Cell.Empty ? Enumerable.Empty<Must>() : board.GetMusts_ConnectNumbers(x, y, cause);
+        public static IEnumerable<Must> GetMusts_Empty_FullNeighbors(this Cell[,] board, int x, int y, (int X, int Y)? cause)
         {
             if (!board.Contains(x, y) || board[x, y] != Cell.Empty)
                 return Enumerable.Empty<Must>();
@@ -297,12 +305,11 @@ namespace PuzzleSolving
             return musts;
         }
 
-        public static IEnumerable<Must> GetMusts_ConnectNumbers(this Cell[,] board, int x, int y, (int X, int Y)? cause = null)
+        public static IEnumerable<Must> GetMusts_ConnectNumbers(this Cell[,] board, int x, int y, (int X, int Y)? cause)
         {
             if (!board.Contains(x, y))
                 return Enumerable.Empty<Must>();
             var musts = new List<Must>();
-            var newCause = (x, y);
             for (var i = 0; i < Cardinals.Length; i++)
             {
                 var scale = 1;
@@ -313,7 +320,13 @@ namespace PuzzleSolving
                     if (!board.Contains(newX, newY) || board[newX, newY] == Cell.Empty || (newX, newY).Equals(cause))
                         break;
                     if (board[newX, newY] >= 0)
-                        musts.Add(new Must() { Cause = newCause, CellType = Cell.Full, Position = (newX, newY) });
+                    {
+                        var m = board.GetMusts_Number(newX, newY);
+                        if (m == null)
+                            return null;
+                        musts.AddRange(m);
+                        break;
+                    }
                     scale++;
                 }
             }

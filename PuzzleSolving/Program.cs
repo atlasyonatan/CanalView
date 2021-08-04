@@ -10,7 +10,7 @@ namespace PuzzleSolving
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            var board = Puzzles.Easy_5x5;
+            var board = Puzzles.Easy2_5x5;
             Console.WriteLine(board.Tostring());
             Console.WriteLine();
 
