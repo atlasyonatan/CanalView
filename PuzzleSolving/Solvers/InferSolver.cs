@@ -12,13 +12,13 @@ namespace PuzzleSolving.Solvers
             var colors = new int[board.GetLength(0), board.GetLength(1)];
             var foundPreviously = false;
             var guesses = new Stack<((int X, int Y) Spot, Cell Value)>();
-            ((int X, int Y) Spot, Cell Value) guess = default;
-            var hasGuess = false;
+            //((int X, int Y) Spot, Cell Value) guess = default;
+            //var hasGuess = false;
             while (true)
             {
                 // try FillMusts
                 var copy = board.Copy();
-                var success = hasGuess ? copy.ApplyMustsRecursively(guess.Spot.X, guess.Spot.Y, null) : copy.ApplyMustsRecursively();
+                var success = guesses.TryPeek(out var guess) ? copy.ApplyMustsRecursively(board.NeutralCellInfo(guess.Spot.X, guess.Spot.Y)) : copy.ApplyMustsRecursively();
                 if (!foundPreviously && success)
                 {
                     // apply changes
@@ -32,7 +32,7 @@ namespace PuzzleSolving.Solvers
                     {
                         foundPreviously = true;
                         yield return board.Copy();
-                        hasGuess = guesses.TryPeek(out guess);
+                        //hasGuess = guesses.TryPeek(out guess);
                         continue;
                     }
 
@@ -48,8 +48,7 @@ namespace PuzzleSolving.Solvers
                     foundPreviously = false;
 
                     // TryPop
-                    hasGuess = guesses.TryPop(out guess);
-                    if (!hasGuess)
+                    if (!guesses.TryPop(out guess))
                         yield break;
 
                     // Clean
