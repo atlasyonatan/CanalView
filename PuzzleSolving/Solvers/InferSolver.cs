@@ -1,6 +1,7 @@
 ﻿using CanalView;
 using System.Collections.Generic;
 using System.Linq;
+using static PuzzleSolving.Musts;
 
 namespace PuzzleSolving.Solvers
 {
@@ -12,38 +13,14 @@ namespace PuzzleSolving.Solvers
             var colors = new int[board.GetLength(0), board.GetLength(1)];
             var foundPreviously = false;
             var guesses = new Stack<((int X, int Y) Spot, Cell Value)>();
-            //((int X, int Y) Spot, Cell Value) guess = default;
-            //var hasGuess = false;
             while (true)
             {
                 // try FillMusts
                 var copy = board.Copy();
-                var success = guesses.TryPeek(out var guess) ? copy.ApplyMustsRecursively(board.NeutralCellInfo(guess.Spot.X, guess.Spot.Y)) : copy.ApplyMustsRecursively();
-                if (!foundPreviously && success)
-                {
-                    // apply changes
-                    foreach (var (x, y) in copy.GetSpots().Where(s => copy[s.X, s.Y] != board[s.X, s.Y]))
-                        colors[x, y] = guesses.Count;
-                    board = copy;
-
-                    // board is completed
-                    var completed = board.GetSpots().All(s => board[s.X, s.Y] != Cell.Unkown);
-                    if (completed)
-                    {
-                        foundPreviously = true;
-                        yield return board.Copy();
-                        //hasGuess = guesses.TryPeek(out guess);
-                        continue;
-                    }
-
-                    // push and apply new guess
-                    var newGuess = BestGuess(board);
-                    guesses.Push(newGuess);
-                    board[newGuess.Spot.X, newGuess.Spot.Y] = newGuess.Value;
-                    colors[newGuess.Spot.X, newGuess.Spot.Y] = guesses.Count;
-                    guess = newGuess;
-                }
-                else
+                var changes = guesses.TryPeek(out var guess)
+                    ? copy.ApplyMustsRecursively(new CellInfo { Position = guess.Spot })
+                    : copy.ApplyMustsRecursively();
+                if (foundPreviously || changes == null)
                 {
                     foundPreviously = false;
 
@@ -67,6 +44,30 @@ namespace PuzzleSolving.Solvers
                     };
                     board[guess.Spot.X, guess.Spot.Y] = otherValue;
                     colors[guess.Spot.X, guess.Spot.Y] = guesses.Count;
+                }
+                else
+                {
+                    // apply changes
+                    foreach (var (x, y) in copy.GetSpots().Where(s => copy[s.X, s.Y] != board[s.X, s.Y]))
+                        colors[x, y] = guesses.Count;
+                    board = copy;
+
+                    // board is completed
+                    var completed = board.GetSpots().All(s => board[s.X, s.Y] != Cell.Unkown);
+                    if (completed)
+                    {
+                        foundPreviously = true;
+                        yield return board.Copy();
+                        //hasGuess = guesses.TryPeek(out guess);
+                        continue;
+                    }
+
+                    // push and apply new guess
+                    var newGuess = BestGuess(board);
+                    guesses.Push(newGuess);
+                    board[newGuess.Spot.X, newGuess.Spot.Y] = newGuess.Value;
+                    colors[newGuess.Spot.X, newGuess.Spot.Y] = guesses.Count;
+                    guess = newGuess;
                 }
             }
         }

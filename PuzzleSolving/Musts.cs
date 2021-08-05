@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static CanalView.Array2DExtensions;
 using static PuzzleSolving.BitWiseOperators;
+using static PuzzleSolving.EnumerableExtensions;
 
 namespace PuzzleSolving
 {
@@ -19,7 +20,6 @@ namespace PuzzleSolving
             public (int x, int y)? Cause = null;
         }
 
-        #region ApplyMusts
         public static IEnumerable<CellInfo> ApplyMustsRecursively(this Cell[,] board)
         {
             var placesOfInterest = board.GetSpots()
@@ -30,24 +30,24 @@ namespace PuzzleSolving
         }
         public static IEnumerable<CellInfo> ApplyMustsRecursively(this Cell[,] board, CellInfo cell) =>
             board.ApplyMustsRecursively(board.ApplyMusts(cell));
-        public static IEnumerable<CellInfo> ApplyMustsRecursively(this Cell[,] board, IEnumerable<CellInfo> musts) => 
+
+        public static IEnumerable<CellInfo> ApplyMustsRecursively(this Cell[,] board, IEnumerable<CellInfo> musts) =>
             musts.ContactIfNotNull(c => board.ApplyMustsRecursively(c));
         public static IEnumerable<CellInfo> ApplyMusts(this Cell[,] board, CellInfo cell) => board[cell.Position.x, cell.Position.y] switch
         {
             Cell.Empty => board.ApplyMusts_Empty(cell),
             Cell.Full => board.ApplyMusts_Full(cell),
             Cell.Unkown => None,
-            _ => board.GetMusts_Number(cell)
+            _ => board.ApplyMusts_Number(cell)
         };
 
         #region Full
         public static IEnumerable<CellInfo> ApplyMusts_Full(this Cell[,] board, CellInfo cell) => board[cell.Position.x, cell.Position.y] == Cell.Full
-                ? EnumerableExtensions.ContactIfNotNull(
+                ? ContactIfNotNull(
                     () => board.ApplyMusts_Full_LShape(cell),
                     () => board.GetMusts_ConnectNumbers(cell),
                     () => board.ApplyMusts_Full_Chunk(cell))
                 : None;
-
         public static IEnumerable<CellInfo> ApplyMusts_Full_LShape(this Cell[,] board, CellInfo cell)
         {
             var (x, y) = cell.Position;
@@ -76,28 +76,33 @@ namespace PuzzleSolving
                 .Where(i => (mustsArr & 1 << i) > 0)
                 .Select(i => (X: x + ClockwiseDirections[i].X, Y: y + ClockwiseDirections[i].Y))
                 .ToArray();
-            foreach (var (X, Y) in musts)
-            {
-                if (board[X, Y] == Cell.Full)
-                    return null;
-                if (board[X, Y] == Cell.Unkown)
-                    board[X, Y] = Cell.Empty;
-            }
-            return musts.Select(p => new CellInfo()
-            {
-                Cause = cell.Position,
-                Position = p,
-            });
+
+            //apply direct found musts
+            var changes = new List<CellInfo>();
+            foreach (var p in musts)
+                switch (board[p.X, p.Y])
+                {
+                    case Cell.Full:
+                        return null;
+                    case Cell.Unkown:
+                        //Update board
+                        board[p.X, p.Y] = Cell.Empty;
+                        changes.Add(new CellInfo { Position = p, Cause = cell.Position });
+                        break;
+                    default:
+                        break;
+                }
+            return changes;
         }
         public static IEnumerable<CellInfo> ApplyMusts_Full_Chunk(this Cell[,] board, CellInfo cell)
         {
             var (x, y) = cell.Position;
             if (!board.Contains(x, y) || board[x, y] != Cell.Full)
-                return Enumerable.Empty<CellInfo>();
+                return None;
             var clone = board.Copy();
             clone.FloodFill(x, y, CHUNK_COLOR);
             if (clone.GetSpots().All(s => clone[s.X, s.Y] != Cell.Full))
-                return Enumerable.Empty<CellInfo>();
+                return None;
 
             var chunkExits = clone.GetSpots()
                 .Where(s => clone[s.X, s.Y] == CHUNK_COLOR).SelectMany(s =>
@@ -105,30 +110,35 @@ namespace PuzzleSolving
                 .Distinct()
                 .ToArray();
 
-            if (chunkExits.Length == 0)
-                return null;
-            if (chunkExits.Length == 1)
+            switch (chunkExits.Length)
             {
-                var exit = chunkExits[0];
-                board[exit.X, exit.Y] = Cell.Full;
-                return new CellInfo[] { new CellInfo() { Cause = cell.Position, Position = exit } };
+                case 0:
+                    return null;
+                case 1:
+                    {
+                        //apply direct found musts
+                        var exit = chunkExits[0];
+                        board[exit.X, exit.Y] = Cell.Full;
+                        return new CellInfo[] { new CellInfo() { Cause = cell.Position, Position = exit } };
+                    }
+                default:
+                    return None;
             }
-            return Enumerable.Empty<CellInfo>();
         }
         #endregion
 
         #region Empty
         public static IEnumerable<CellInfo> ApplyMusts_Empty(this Cell[,] board, CellInfo cell) => board[cell.Position.x, cell.Position.y] == Cell.Empty
-                ? EnumerableExtensions.ContactIfNotNull(
+                ? ContactIfNotNull(
                     () => board.GetMusts_ConnectNumbers(cell),
-                    () => board.ApplyMusts_Empty_FullNeighbors(cell),
-                    () => board.GetMusts_Empty_UnknownNeighbors(cell))
+                    () => board.GetMusts_Empty_FullNeighbors(cell),
+                    () => board.ApplyMusts_Empty_UnknownNeighbors(cell))
                 : None;
-        public static IEnumerable<CellInfo> ApplyMusts_Empty_FullNeighbors(this Cell[,] board, CellInfo cell)
+        public static IEnumerable<CellInfo> GetMusts_Empty_FullNeighbors(this Cell[,] board, CellInfo cell)
         {
             var (x, y) = cell.Position;
             if (!board.Contains(x, y) || board[x, y] != Cell.Empty)
-                return Enumerable.Empty<CellInfo>();
+                return None;
 
             var fullNeighbors = Cardinals.Select(d => (X: x + d.X, Y: y + d.Y)).Where(s =>
                 board.Contains(s.X, s.Y) &&
@@ -145,13 +155,13 @@ namespace PuzzleSolving
             });
             return chunkSpots.Select(p => new CellInfo() { Cause = cell.Position, Position = p });
         }
-        public static IEnumerable<CellInfo> GetMusts_Empty_UnknownNeighbors(this Cell[,] board, CellInfo cell)
+        public static IEnumerable<CellInfo> ApplyMusts_Empty_UnknownNeighbors(this Cell[,] board, CellInfo cell)
         {
             var (x, y) = cell.Position;
             if (!board.Contains(x, y) ||
                 board[x, y] != Cell.Empty ||
                 board.GetSpots().All(s => board[s.X, s.Y] != Cell.Full))
-                return Enumerable.Empty<CellInfo>();
+                return None; ;
 
             var unknownNeighbors = Cardinals.Select(d => (X: x + d.X, Y: y + d.Y)).Where(s =>
                 board.Contains(s.X, s.Y) &&
@@ -171,17 +181,21 @@ namespace PuzzleSolving
                 var touchingFull = chunkSpots.Any(s => Cardinals.Select(d => (X: s.X + d.X, Y: s.Y + d.Y))
                     .Any(s => board.Contains(s.X, s.Y) && board[s.X, s.Y] == Cell.Full));
                 if (!touchingFull)
+                {
                     musts.AddRange(chunkSpots);
+                    foreach (var s in chunkSpots)
+                        board[s.X, s.Y] = Cell.Empty;
+                }
             }
             return musts.Select(p => new CellInfo() { Cause = cell.Position, Position = p });
         }
         #endregion Empty
 
-        public static IEnumerable<CellInfo> GetMusts_Number(this Cell[,] board, CellInfo cell)
+        public static IEnumerable<CellInfo> ApplyMusts_Number(this Cell[,] board, CellInfo cell)
         {
             var (x, y) = cell.Position;
             if (!board.Contains(x, y) || board[x, y] < 0)
-                return Enumerable.Empty<CellInfo>();
+                return None;
 
             #region Find counts
             // Find counts
@@ -214,10 +228,13 @@ namespace PuzzleSolving
             }
             #endregion
 
-            //Check for musts
-            var musts = new List<CellInfo>(); //new List<(int X, int Y)>() { };
+            #region Check for musts
+            var changes = new List<CellInfo>();
             var totalFullCount = fullCount.Sum();
-            var totalRemaining = distances.Sum() - totalFullCount;
+            var totalDistances = distances.Sum();
+            var totalRemaining = totalDistances - totalFullCount;
+            if (totalDistances < cellNumber)
+                return null;
             var unchangedCount = 0;
             var i = -1;
             while (unchangedCount < 4)
@@ -240,12 +257,12 @@ namespace PuzzleSolving
                         return null;
                     if (mfs.Length > 0)
                     {
-                        ////Update board
-                        //foreach (var (X, Y) in mfs)
-                        //    board[X, Y] = Cell.Full;
-
-                        //Add to musts
-                        musts.AddRange(mfs.Select(p => new CellInfo() { Cause = cell.Position, Position = p }));
+                        //Update board
+                        foreach (var p in mfs)
+                        {
+                            board[p.X, p.Y] = Cell.Full;
+                            changes.Add(new CellInfo { Cause = cell.Position, Position = p });
+                        }
 
                         //Update counts
                         unchangedCount = 0;
@@ -256,6 +273,8 @@ namespace PuzzleSolving
                 }
 
                 //check if number is satisfied
+                if (totalFullCount > cellNumber)
+                    return null;
                 if (totalFullCount == cellNumber)
                 {
                     //block cardinals
@@ -264,9 +283,16 @@ namespace PuzzleSolving
                         Y: y + Cardinals[i].Y * (fc + 1)))
                         .Where(s => board.Contains(s.X, s.Y) && board[s.X, s.Y] == Cell.Unkown);
 
-                    musts.AddRange(fillEmpties.Select(p => new CellInfo { Cause = cell.Position, Position = p }));
+                    //Update board
+                    foreach (var p in fillEmpties)
+                    {
+                        board[p.X, p.Y] = Cell.Empty;
+                        changes.Add(new CellInfo { Position = p, Cause = cell.Position });
+                    }
                     break; //number satisfied so no more checks.
                 }
+
+
 
                 //Next must be empty if there are too many fulls after next
                 if (fullCount[i] < distances[i])
@@ -286,7 +312,10 @@ namespace PuzzleSolving
                             if (totalFullCount + afterNextFullCount + 1 > cellNumber)
                             {
                                 //Next must be empty
-                                musts.Add(new CellInfo { Cause = cell.Position, Position = next });
+
+                                //Update board
+                                board[next.X, next.Y] = Cell.Empty;
+                                changes.Add(new CellInfo { Cause = cell.Position, Position = next });
 
                                 //Update counts
                                 unchangedCount = 0;
@@ -298,7 +327,9 @@ namespace PuzzleSolving
                     }
                 }
             }
-            return musts;
+            #endregion
+
+            return changes;
         }
         public static IEnumerable<CellInfo> GetMusts_ConnectNumbers(this Cell[,] board, CellInfo cell)
         {
@@ -317,11 +348,10 @@ namespace PuzzleSolving
                         break;
                     if (board[newX, newY] >= 0)
                     {
-                        var newCell = new CellInfo { Position = (newX, newY), Cause = cell.Position };
-                        var m = board.GetMusts_Number(newCell);
-                        if (m == null)
+                        var sub = board.ApplyMusts_Number(new CellInfo { Position = (newX, newY), Cause = cell.Position });
+                        if (sub == null)
                             return null;
-                        musts.AddRange(m);
+                        musts.AddRange(sub);
                         break;
                     }
                     scale++;
@@ -329,6 +359,5 @@ namespace PuzzleSolving
             }
             return musts;
         }
-        #endregion
     }
 }
