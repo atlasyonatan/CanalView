@@ -19,11 +19,7 @@ namespace PuzzleGeneration
                 if (random.NextDouble() < fillChance)
                 {
                     board[x, y] = Cell.Full;
-                    var musts = board.GetMusts_Full_LShape(board.NeutralCellInfo(x,y));
-                    foreach (var must in musts)
-                        board.TryApplyMust(must);//todo: this violates rules for some reason.
-                        //board[must.Position.x, must.Position.y] = must.CellType;
-
+                    board.ApplyMusts_Full_LShape(new CellInfo { Position = (x, y) });
                     var neighbors = Cardinals.Select(d => (x: x + d.X, y: y + d.Y))
                         .Where(p => board.Contains(p.x, p.y) && board[p.x, p.y] == Cell.Unkown);
                     foreach (var neighbor in neighbors)
