@@ -1,35 +1,64 @@
 ﻿using CanalView;
 using System;
 using System.Linq;
+using static PuzzleSolving.Musts;
 
 namespace PuzzleGeneration
 {
     public static class Generation
     {
-        public static (int x, int y) RandomPosition<T>(this T[,] arr, Random random) =>
-            (random.Next(0, arr.GetLength(0) - 1), random.Next(0, arr.GetLength(1) - 1));//todo: check which 2darr dimension corrisponds to width and height
-
-        public static Cell[,] GenerateRandomPath(this Cell[,] board, (int x, int y) start, Random random, double fillChance)
+        public static void DepthFirstTransform<T>(T[,] arr, (int x, int y) position, Func<(int x, int y), bool> transform)
         {
-            void RandomNeighborFill(int x, int y)
+            if (transform(position))
             {
-                if (board[x, y] != Cell.Empty)
-                    return;
-                if (random.NextDouble() < fillChance)
-                {
-                    board[x, y] = Cell.Full;
-
-                    //todo: fillmusts L shape
-                }
                 var neighbors = Array2DExtensions.Cardinals
-                    .Select(d => (x: x + d.X, y: y + d.Y))
-                    .Where(p => board.Contains(p.x, p.y));
+                        .Select(direction => (x: position.x + direction.X, y: position.y + direction.Y))
+                        .Where(p => arr.Contains(p.x, p.y));
                 foreach (var neighbor in neighbors)
-                {
+                    DepthFirstTransform(arr, neighbor, transform);
+            }
+        }
 
+        //public static void AddValidFullPath(Cell[,] board, (int x, int y) position, Action<(int x, int y)> chooseCell)
+        //{
+        //    DepthFirstTransform(board, position, (b, p) =>
+        //    {
+        //        var before = b[p.x, p.y];
+
+        //    })
+        //    chooseCell(position);
+        //    if (board[position.x, position.y] == Cell.Full)
+        //    {
+        //        board.ApplyMusts_Full(new CellInfo { Position = position });
+        //        var neighbors = Array2DExtensions.Cardinals
+        //                .Select(direction => (x: position.x + direction.X, y: position.y + direction.Y))
+        //                .Where(p => board.Contains(p.x, p.y) && board[p.x, p.y] == Cell.Unkown);
+        //        foreach (var neighbor in neighbors)
+        //            AddValidFullPath(board, neighbor, chooseCell);
+        //    }
+        //}
+
+        public static int FindNumber(this Cell[,] board, int x, int y)
+        {
+            var fullCount = 0;
+            foreach (var (dx, dy) in Array2DExtensions.Cardinals)
+            {
+                var scale = 1;
+                while (true)
+                {
+                    var (newX, newY) = (x + scale * dx, y + scale * dy);
+                    if (!board.Contains(newX, newY) || board[newX, newY] != Cell.Full)
+                        break;
+                    fullCount++;
+                    scale++;
                 }
             }
-            throw new NotImplementedException();
+            return fullCount;
+        }
+        public static void FillNumber(Cell[,] board, int x, int y)
+        {
+            board[x, y] = (Cell)board.FindNumber(x, y);
+            board.ApplyMusts_Number(new CellInfo { Position = (x, y) });
         }
     }
 }

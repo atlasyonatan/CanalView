@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CanalView\CanalView.csproj" />
+    <ProjectReference Include="..\PuzzleSolving\PuzzleSolving.csproj" />
   </ItemGroup>
 
 </Project>
