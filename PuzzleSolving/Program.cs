@@ -21,7 +21,7 @@ namespace PuzzleSolving
             //Console.WriteLine($"{sw.Elapsed:c}");
             //Console.WriteLine(success ? board.Tostring() : "unsuccessful :c");
 
-            var solutions = new InferSolver().Solve(board);
+            var solutions = InferSolver.Solve(board);
             int i = 0;
             var sw = new Stopwatch();
             TimeSpan total = TimeSpan.Zero;

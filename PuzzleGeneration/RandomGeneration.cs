@@ -31,7 +31,7 @@ namespace PuzzleGeneration
                 if (chosenCell != Cell.Full && chosenCell != Cell.Empty)
                     return false;
                 board[p.x, p.y] = chosenCell;
-                var changes = board.ApplyMustsRecursively(new CellInfo { Position = p });
+                var changes = ApplyMustsRecursively(board, new CellInfo { Position = p });
                 foreach (var cell in changes)
                     done[cell.Position.x, cell.Position.y] = true;
                 return chosenCell == Cell.Full;

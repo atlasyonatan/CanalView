@@ -5,9 +5,9 @@ using static PuzzleSolving.Musts;
 
 namespace PuzzleSolving.Solvers
 {
-    public class InferSolver : ISolver
+    public static class InferSolver
     {
-        public IEnumerable<Cell[,]> Solve(Cell[,] board)
+        public static IEnumerable<Cell[,]> Solve(Cell[,] board)
         {
             board = board.Copy();
             var colors = new int[board.GetLength(0), board.GetLength(1)];
@@ -18,8 +18,8 @@ namespace PuzzleSolving.Solvers
                 // try FillMusts
                 var copy = board.Copy();
                 var changes = guesses.TryPeek(out var guess)
-                    ? copy.ApplyMustsRecursively(new CellInfo { Position = guess.Spot })
-                    : copy.ApplyMustsRecursively();
+                    ? ApplyMustsRecursively(copy, new CellInfo { Position = guess.Spot })
+                    : ApplyMustsRecursively(copy);
                 if (foundPreviously || changes == null)
                 {
                     foundPreviously = false;
@@ -48,8 +48,8 @@ namespace PuzzleSolving.Solvers
                 else
                 {
                     // apply changes
-                    foreach (var (x, y) in copy.GetSpots().Where(s => copy[s.X, s.Y] != board[s.X, s.Y]))
-                        colors[x, y] = guesses.Count;
+                    foreach (var cell in changes)
+                        colors[cell.Position.x, cell.Position.y] = guesses.Count;
                     board = copy;
 
                     // board is completed

@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace PuzzleSolving.Solvers
 {
-    public class BruteSolver : ISolver
+    public static class BruteSolver
     {
         private static readonly Cell[] FillOptions = new Cell[] { Cell.Full, Cell.Empty };
-        public IEnumerable<Cell[,]> Solve(Cell[,] board)
+        public static IEnumerable<Cell[,]> Solve(Cell[,] board)
         {
             board = board.Copy();
             var i = 0;
