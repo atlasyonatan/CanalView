@@ -190,6 +190,7 @@ namespace PuzzleSolving
         }
         #endregion Empty
 
+        #region Number
         public static IEnumerable<CellInfo> ApplyMusts_Number(Cell[,] board, CellInfo cell)
         {
             var (x, y) = cell.Position;
@@ -358,5 +359,6 @@ namespace PuzzleSolving
             }
             return musts;
         }
+        #endregion
     }
 }
