@@ -58,7 +58,7 @@ namespace PuzzleGeneration
         public static void FillNumber(Cell[,] board, int x, int y)
         {
             board[x, y] = (Cell)board.FindNumber(x, y);
-            board.ApplyMusts_Number(new CellInfo { Position = (x, y) });
+            board.ApplyMustsRecursively(new CellInfo { Position = (x, y) });
         }
     }
 }
