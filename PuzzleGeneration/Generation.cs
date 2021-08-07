@@ -1,33 +1,53 @@
 ﻿using CanalView;
 using System;
 using System.Linq;
-using static PuzzleSolving.Musts;
 
 namespace PuzzleGeneration
 {
     public static class Generation
     {
-        public static void AddRandomPath(Cell[,] board, int x, int y, Random random, double fillChance)
+        public static void AddValidPath(Cell[,] board, (int x, int y) start, Action<(int x, int y)> chooseCell)
         {
-            void RandomNeighborFill(int X, int Y)
+            void Fill((int x, int y) position)
             {
-                if (random.NextDouble() < fillChance)
+                chooseCell(position);
+                if(board[position.x, position.y] == Cell.Full)
                 {
-                    board[X, Y] = Cell.Full;
-                    board.ApplyMusts_Full_LShape(new CellInfo { Position = (X, Y) });
-                    var neighbors = Array2DExtensions.Cardinals.Select(d => (x: X + d.X, y: Y + d.Y))
-                        .Where(p => board.Contains(p.x, p.y) && board[p.x, p.y] == Cell.Unkown);
+                    var neighbors = Array2DExtensions.Cardinals
+                            .Select(direction => (x: position.x + direction.X, y: position.y + direction.Y))
+                            .Where(p => board.Contains(p.x, p.y) && board[p.x, p.y] == Cell.Unkown);
                     foreach (var neighbor in neighbors)
-                        RandomNeighborFill(neighbor.x, neighbor.y);
+                        Fill(neighbor);
                 }
             }
-            RandomNeighborFill(x, y);
+            Fill(start);
         }
+
         public static int FindNumber(this Cell[,] board, int x, int y)
         {
-            throw new NotImplementedException();
+            var fullCount = 0;
+            foreach (var (dx, dy) in Array2DExtensions.Cardinals)
+            {
+                var scale = 1;
+                while (true)
+                {
+                    var (newX, newY) = (x + scale * dx, y + scale * dy);
+                    if (!board.Contains(newX, newY) || board[newX, newY] != Cell.Full)
+                        break;
+                    fullCount++;
+                    scale++;
+                }
+            }
+            return fullCount;
         }
-        public static void FillNumber(Cell[,] board, int x, int y) => 
+        public static void FillNumber(Cell[,] board, int x, int y) =>
             board[x, y] = (Cell)board.FindNumber(x, y);
+        public static void AddRandomNumber(Cell[,] board, Random random)
+        {
+            var (x, y) = board.GetSpots()
+                .Where(p => board[p.X, p.Y] == Cell.Unkown || board[p.X, p.Y] == Cell.Empty)
+                .RandomItem(random);
+            FillNumber(board, x, y);
+        }
     }
 }

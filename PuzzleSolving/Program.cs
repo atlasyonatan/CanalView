@@ -10,7 +10,7 @@ namespace PuzzleSolving
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            var board = Puzzles.Hard_12x12; //todo: fix bug: this finds multiple wrong solutions on Medium10x10 and Hard12x12
+            var board = Puzzles.Medium_8x8; //todo: fix bug: this finds multiple wrong solutions on Medium10x10 and Hard12x12
             Console.WriteLine(board.Tostring());
             Console.WriteLine();
 

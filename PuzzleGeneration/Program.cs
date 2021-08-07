@@ -8,9 +8,9 @@ namespace PuzzleGenerator
     {
         static void Main(string[] args)
         {
-            var b = Board.Blank(5, 5);
+            var dimensions = (8, 8);
             var r = new Random();
-            var puzzles = RandomPathGenerator(b, r, 0.6);
+            var puzzles = PathGenerator(dimensions, r, 0.6);
             foreach (var board in puzzles)
             {
                 Console.WriteLine(board.Tostring());
