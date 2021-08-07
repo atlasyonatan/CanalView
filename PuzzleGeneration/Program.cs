@@ -1,6 +1,6 @@
 ﻿using CanalView;
 using System;
-using static PuzzleGeneration.Generators;
+using static PuzzleGeneration.RandomGeneration;
 
 namespace PuzzleGenerator
 {
@@ -8,11 +8,12 @@ namespace PuzzleGenerator
     {
         static void Main(string[] args)
         {
-            var dimensions = (8, 8);
+            var (width, height) = (8, 8);
             var r = new Random();
-            var puzzles = PathGenerator(dimensions, r, 0.6);
-            foreach (var board in puzzles)
+            while (true)
             {
+                var board = Board.Blank(width, height);
+                AddRandomValidPath(board, r, (Cell.Full, 5), (Cell.Empty, 1));
                 Console.WriteLine(board.Tostring());
                 Console.ReadLine();
             }

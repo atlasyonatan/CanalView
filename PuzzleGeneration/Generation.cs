@@ -1,27 +1,42 @@
 ﻿using CanalView;
 using System;
 using System.Linq;
+using static PuzzleSolving.Musts;
 
 namespace PuzzleGeneration
 {
     public static class Generation
     {
-        public static void AddValidPath(Cell[,] board, (int x, int y) start, Action<(int x, int y)> chooseCell)
+        public static void DepthFirstTransform<T>(T[,] arr, (int x, int y) position, Func<(int x, int y), bool> transform)
         {
-            void Fill((int x, int y) position)
+            if (transform(position))
             {
-                chooseCell(position);
-                if(board[position.x, position.y] == Cell.Full)
-                {
-                    var neighbors = Array2DExtensions.Cardinals
-                            .Select(direction => (x: position.x + direction.X, y: position.y + direction.Y))
-                            .Where(p => board.Contains(p.x, p.y) && board[p.x, p.y] == Cell.Unkown);
-                    foreach (var neighbor in neighbors)
-                        Fill(neighbor);
-                }
+                var neighbors = Array2DExtensions.Cardinals
+                        .Select(direction => (x: position.x + direction.X, y: position.y + direction.Y))
+                        .Where(p => arr.Contains(p.x, p.y));
+                foreach (var neighbor in neighbors)
+                    DepthFirstTransform(arr, neighbor, transform);
             }
-            Fill(start);
         }
+
+        //public static void AddValidFullPath(Cell[,] board, (int x, int y) position, Action<(int x, int y)> chooseCell)
+        //{
+        //    DepthFirstTransform(board, position, (b, p) =>
+        //    {
+        //        var before = b[p.x, p.y];
+
+        //    })
+        //    chooseCell(position);
+        //    if (board[position.x, position.y] == Cell.Full)
+        //    {
+        //        board.ApplyMusts_Full(new CellInfo { Position = position });
+        //        var neighbors = Array2DExtensions.Cardinals
+        //                .Select(direction => (x: position.x + direction.X, y: position.y + direction.Y))
+        //                .Where(p => board.Contains(p.x, p.y) && board[p.x, p.y] == Cell.Unkown);
+        //        foreach (var neighbor in neighbors)
+        //            AddValidFullPath(board, neighbor, chooseCell);
+        //    }
+        //}
 
         public static int FindNumber(this Cell[,] board, int x, int y)
         {
@@ -40,14 +55,10 @@ namespace PuzzleGeneration
             }
             return fullCount;
         }
-        public static void FillNumber(Cell[,] board, int x, int y) =>
-            board[x, y] = (Cell)board.FindNumber(x, y);
-        public static void AddRandomNumber(Cell[,] board, Random random)
+        public static void FillNumber(Cell[,] board, int x, int y)
         {
-            var (x, y) = board.GetSpots()
-                .Where(p => board[p.X, p.Y] == Cell.Unkown || board[p.X, p.Y] == Cell.Empty)
-                .RandomItem(random);
-            FillNumber(board, x, y);
+            board[x, y] = (Cell)board.FindNumber(x, y);
+            board.ApplyMusts_Number(new CellInfo { Position = (x, y) });
         }
     }
 }

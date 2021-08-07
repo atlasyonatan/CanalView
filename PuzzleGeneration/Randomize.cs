@@ -14,5 +14,20 @@ namespace PuzzleGeneration
             var arr = source.ToArray();
             return arr[random.Next(arr.Length)];
         }
+
+        public static (T item, double weight) WeightedRandomItem<T>(this IEnumerable<(T item, double weight)> source, Random random)
+        {
+            var arr = source.ToArray();
+            var total = arr.Sum(x => x.weight);
+            var r = random.NextDouble() * total;
+            var i = 0;
+            for (; i < arr.Length; i++)
+            {
+                if (r < arr[i].weight)
+                    break;
+                r -= arr[i].weight;
+            }
+            return arr[i];
+        }
     }
 }
