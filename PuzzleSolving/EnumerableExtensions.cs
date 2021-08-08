@@ -29,7 +29,7 @@ namespace PuzzleSolving
             return false;
         }
 
-        public static IEnumerable<T> Concat<T>(params IEnumerable<T>[] sources) =>
+        public static IEnumerable<T> Concat<T>(this IEnumerable<IEnumerable<T>> sources) =>
             sources.SelectMany(s => s.Select(i => i));
 
         public static IEnumerable<T> ContactIfNotNull<T>(params Func<IEnumerable<T>>[] selectors)
@@ -42,7 +42,7 @@ namespace PuzzleSolving
                     return null;
                 results.Add(result);
             }
-            return Concat(results.ToArray());
+            return results.Concat();
         }
 
         public static IEnumerable<TOut> ContactIfNotNull<TIn, TOut>(this IEnumerable<TIn> source, Func<TIn, IEnumerable<TOut>> selector)
@@ -57,7 +57,7 @@ namespace PuzzleSolving
                     return null;
                 results.Add(result);
             }
-            return Concat(results.ToArray());
+            return Concat(results);
         }
     }
 }

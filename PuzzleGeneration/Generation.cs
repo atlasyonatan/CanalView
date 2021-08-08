@@ -60,5 +60,14 @@ namespace PuzzleGeneration
             board[x, y] = (Cell)board.FindNumber(x, y);
             ApplyMustsRecursively(board, new CellInfo { Position = (x, y) });
         }
+
+        public static void Unknownify(Cell[,] board)
+        {
+            foreach (var (x,y) in board.GetSpots())
+            {
+                if (board[x, y] == Cell.Empty)
+                    board[x, y] = Cell.Unkown;
+            }
+        }
     }
 }

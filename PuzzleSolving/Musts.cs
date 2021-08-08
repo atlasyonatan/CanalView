@@ -51,7 +51,7 @@ namespace PuzzleSolving
         {
             var (x, y) = cell.Position;
             if (!board.Contains(x, y) || board[x, y] != Cell.Full)
-                return Enumerable.Empty<CellInfo>();
+                return None;
             uint fullSpots = 0;
             for (var i = 0; i < 8; i++)
             {
@@ -254,6 +254,7 @@ namespace PuzzleSolving
                         .Where(s => board.Contains(s.X, s.Y))
                         .ToArray();
                     if (mfs.Any(s => board[s.X, s.Y] != Cell.Unkown))
+                    if (mfs.Any(s => board[s.X, s.Y] != Cell.Unkown && board[s.X, s.Y] != Cell.Full))
                         return null;
                     if (mfs.Length > 0)
                     {
@@ -335,7 +336,7 @@ namespace PuzzleSolving
         {
             var (x, y) = cell.Position;
             if (!board.Contains(x, y))
-                return Enumerable.Empty<CellInfo>();
+                return None;
             var musts = new List<CellInfo>();
             for (var i = 0; i < Cardinals.Length; i++)
             {

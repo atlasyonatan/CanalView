@@ -1,5 +1,6 @@
 ﻿using CanalView;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using static PuzzleGeneration.Generation;
 using static PuzzleSolving.Musts;
@@ -11,9 +12,8 @@ namespace PuzzleGeneration
         public static void AddRandomValidPath(Cell[,] board, Random random, params (Cell type, double weight)[] weights)
         {
             var unkowns = board.GetSpots().Where(p => board[p.X, p.Y] == Cell.Unkown).ToArray();
-            if (unkowns.Length == 0)
+            if (!unkowns.TryRandomItem(random, out var start))
                 return;
-            var start = unkowns.RandomItem(random);
             board[start.X, start.Y] = Cell.Full;
             var done = new bool[board.GetLength(0), board.GetLength(1)];
             DepthFirstTransform(board, start, p =>
@@ -38,18 +38,43 @@ namespace PuzzleGeneration
             });
         }
 
-        public static void AddRandomNumber(Cell[,] board, Random random)
+        public static bool AddRandomNumber(Cell[,] board, Random random)
         {
-            var (x, y) = board.GetSpots()
-                .Where(p => board[p.X, p.Y] == Cell.Unkown || board[p.X, p.Y] == Cell.Empty)
-                .RandomItem(random);
-            FillNumber(board, x, y);
+            var vacantSpots = board.GetSpots()
+                .Where(p => board[p.X, p.Y] == Cell.Unkown || board[p.X, p.Y] == Cell.Empty);
+            if (vacantSpots.TryRandomItem(random, out var p))
+            {
+                FillNumber(board, p.X, p.Y);
+                return true;
+            }
+            return false;
         }
 
-        //public static void AddRandomNumbers(Cell[,] board, Random random, double pathChance)
-        //{
-        //    AddRandomNumber(board, random);
-        //}
+        public static Cell[][,] AddRandomNumbers(Cell[,] board, Random random, int maxSolutions)
+        {
+            var addCount = 0;
+            Cell[][,] solutions = null;
+            while (AddRandomNumber(board, random))
+            {
+                addCount++;
+                var copy = board.Copy();
+                Clean(copy);
+                var count = 0;
+                solutions = PuzzleSolving.Solvers.InferSolver.Solve(copy)
+                    .TakeWhile(_ => ++count <= maxSolutions)
+                    .ToArray();
+                if (count <= maxSolutions)
+                    break;
+            }
+            return solutions;
+        }
+
+        public static void Clean(Cell[,] board)
+        {
+            foreach (var (x, y) in board.GetSpots())
+                if (board[x, y] < 0)
+                    board[x, y] = Cell.Unkown;
+        }
     }
 }
 

@@ -9,10 +9,14 @@ namespace PuzzleGeneration
         public static (int x, int y) RandomPosition<T>(this T[,] arr, Random random) =>
             (random.Next(0, arr.GetLength(0) - 1), random.Next(0, arr.GetLength(1) - 1));//todo: check which 2darr dimension corrisponds to width and height
 
-        public static T RandomItem<T>(this IEnumerable<T> source, Random random)
+        public static bool TryRandomItem<T>(this IEnumerable<T> source, Random random, out T item)
         {
+            item = default;
             var arr = source.ToArray();
-            return arr[random.Next(arr.Length)];
+            if (arr.Length == 0)
+                return false;
+            item = arr[random.Next(arr.Length)];
+            return true;
         }
 
         public static (T item, double weight) WeightedRandomItem<T>(this IEnumerable<(T item, double weight)> source, Random random)
