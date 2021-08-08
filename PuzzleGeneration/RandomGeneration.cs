@@ -50,7 +50,7 @@ namespace PuzzleGeneration
             return false;
         }
 
-        public static Cell[][,] AddRandomNumbers(Cell[,] board, Random random, int maxSolutions)
+        public static Cell[][,] AddRandomNumbers(Cell[,] board, Random random, int maxSolutions, Func<Cell[,], IEnumerable<Cell[,]>> solver)
         {
             var addCount = 0;
             Cell[][,] solutions = null;
@@ -60,9 +60,7 @@ namespace PuzzleGeneration
                 var copy = board.Copy();
                 Clean(copy);
                 var count = 0;
-                solutions = PuzzleSolving.Solvers.InferSolver.Solve(copy)
-                    .TakeWhile(_ => ++count <= maxSolutions)
-                    .ToArray();
+                solutions = solver(copy).TakeWhile(_ => ++count <= maxSolutions).ToArray();
                 if (count <= maxSolutions)
                     break;
             }

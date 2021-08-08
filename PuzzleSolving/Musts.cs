@@ -293,8 +293,6 @@ namespace PuzzleSolving
                     break; //number satisfied so no more checks.
                 }
 
-
-
                 //Next must be empty if there are too many fulls after next
                 if (fullCount[i] < distances[i])
                 {
