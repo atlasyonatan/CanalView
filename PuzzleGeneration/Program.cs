@@ -1,4 +1,5 @@
 ﻿using CanalView;
+using PuzzleGeneration;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -10,16 +11,19 @@ namespace PuzzleGenerator
     {
         static void Main(string[] args)
         {
-            var (width, height) = (8, 8);
+            var (width, height) = (3, 3);
+            var weights = new (Cell, double)[] { (Cell.Full, 1), (Cell.Empty, 3) };
+            var maxSolutions = 1;
             var r = new Random();
             var sw = new Stopwatch();
             var i = 0;
             while (true)
             {
                 var board = Board.Blank(width, height);
+                var start = board.RandomPosition(r);
                 sw.Restart();
-                AddRandomValidPath(board, r, (Cell.Full, 3), (Cell.Empty, 1));
-                var solutions = AddRandomNumbers(board, r, 1, PuzzleSolving.Solvers.InferSolver.Solve);
+                Generation.AddValidPath(board, start, _ => Randomize.WeightedRandomItem(weights, r).item);
+                var solutions = Generation.ApplyChangesUntilBelowMaxSolutions(board, maxSolutions, () => AddRandomNumber(board, r), PuzzleSolving.Solvers.InferSolver.Solve);
                 sw.Stop();
                 if (solutions.Length == 0)
                 {
@@ -29,13 +33,17 @@ namespace PuzzleGenerator
                     Console.WriteLine();
 
                     //bug: solver is bad if it can't find solutions to constructed valid puzzle
-                    Clean(board);
-                    _ = PuzzleSolving.Solvers.InferSolver.Solve(board).ToArray();//todo: debug this
+                    Generation.Clean(board);
+                    while(true)
+                    {
+                        var x = PuzzleSolving.Solvers.InferSolver.Solve(board).ToArray();//todo: debug this
+                    }
+                    
                 }
                 else
                 {
                     Console.WriteLine($"Puzzle #{++i} (n. of solutions = {solutions.Length} ,{sw.Elapsed:c}):");
-                    Clean(board);
+                    Generation.Clean(board);
                     Console.WriteLine(board.Tostring());
                     Console.WriteLine();
                     Console.WriteLine("Solutions:");
