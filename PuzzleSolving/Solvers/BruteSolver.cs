@@ -12,8 +12,8 @@ namespace PuzzleSolving.Solvers
         {
             board = board.Copy();
             var i = 0;
-            var unknowns = board.GetSpots()
-                    .Where(s => board[s.X, s.Y] == Cell.Unkown)
+            var unknowns = board.Points()
+                    .Where(s => board[s.x, s.y] == Cell.Unkown)
                     .ToArray();
             while (i >= 0)
             {

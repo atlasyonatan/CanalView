@@ -16,9 +16,9 @@ namespace BoardIO
         {
             var data = new DataStructure
             {
-                Cells = board.GetSpots()
-                .Where(s => board[s.X, s.Y] != Cell.Unkown)
-                .Select(s => (s.X, s.Y, (int)board[s.X, s.Y]))
+                Cells = board.Points()
+                .Where(s => board[s.x, s.y] != Cell.Unkown)
+                .Select(s => (s.x, s.y, (int)board[s.x, s.y]))
                 .ToArray(),
                 Size = (board.GetLength(0), board.GetLength(1))
             };

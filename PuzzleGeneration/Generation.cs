@@ -12,8 +12,8 @@ namespace PuzzleGeneration
         {
             if (transform(position))
             {
-                var neighbors = Array2DExtensions.Cardinals
-                        .Select(direction => (x: position.x + direction.X, y: position.y + direction.Y))
+                var neighbors = Array2D.Cardinals
+                        .Select(direction => (x: position.x + direction.x, y: position.y + direction.y))
                         .Where(p => arr.Contains(p.x, p.y));
                 foreach (var neighbor in neighbors)
                     DepthFirstTransform(arr, neighbor, transform);
@@ -46,7 +46,7 @@ namespace PuzzleGeneration
         public static int FindNumber(this Cell[,] board, (int x, int y) position)
         {
             var fullCount = 0;
-            foreach (var (dx, dy) in Array2DExtensions.Cardinals)
+            foreach (var (dx, dy) in Array2D.Cardinals)
             {
                 var scale = 1;
                 while (true)
@@ -81,7 +81,7 @@ namespace PuzzleGeneration
         }
         public static void Clean(Cell[,] board)
         {
-            foreach (var (x, y) in board.GetSpots())
+            foreach (var (x, y) in board.Points())
                 if (board[x, y] < 0)
                     board[x, y] = Cell.Unkown;
         }

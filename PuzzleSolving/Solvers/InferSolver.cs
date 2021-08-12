@@ -9,7 +9,7 @@ namespace PuzzleSolving.Solvers
     {
         private class GuessInfo
         {
-            public ((int X, int Y) Spot, Cell Value) Guess;
+            public ((int x, int y) Spot, Cell Value) Guess;
             public bool Remove = false;
         }
         public static IEnumerable<Cell[,]> Solve(Cell[,] board)
@@ -43,10 +43,10 @@ namespace PuzzleSolving.Solvers
 
                     // Clean
                     var color = guesses.Count;
-                    foreach (var (X, Y) in board.GetSpots().Where(s => colors[s.X, s.Y] >= color).ToArray())
+                    foreach (var (x, y) in board.Points().Where(s => colors[s.x, s.y] >= color).ToArray())
                     {
-                        board[X, Y] = Cell.Unkown;
-                        colors[X, Y] = 0;
+                        board[x, y] = Cell.Unkown;
+                        colors[x, y] = 0;
                     }
 
                     guessInfo.Remove = true;
@@ -58,8 +58,8 @@ namespace PuzzleSolving.Solvers
                         _ => Cell.Full
                     };
                     guessInfo.Guess = (guessInfo.Guess.Spot, otherValue);
-                    board[guessInfo.Guess.Spot.X, guessInfo.Guess.Spot.Y] = guessInfo.Guess.Value;
-                    colors[guessInfo.Guess.Spot.X, guessInfo.Guess.Spot.Y] = guesses.Count;
+                    board[guessInfo.Guess.Spot.x, guessInfo.Guess.Spot.y] = guessInfo.Guess.Value;
+                    colors[guessInfo.Guess.Spot.x, guessInfo.Guess.Spot.y] = guesses.Count;
 
                 }
                 else
@@ -72,7 +72,7 @@ namespace PuzzleSolving.Solvers
                     board = copy;
 
                     // board is completed
-                    var completed = board.GetSpots().All(s => board[s.X, s.Y] != Cell.Unkown);
+                    var completed = board.Points().All(s => board[s.x, s.y] != Cell.Unkown);
                     if (completed)
                     {
                         foundPreviously = true;
@@ -83,14 +83,14 @@ namespace PuzzleSolving.Solvers
                     // push and apply new guess
                     var newGuess = new GuessInfo { Guess = BestGuess(board) };
                     guesses.Push(newGuess);
-                    board[newGuess.Guess.Spot.X, newGuess.Guess.Spot.Y] = newGuess.Guess.Value;
-                    colors[newGuess.Guess.Spot.X, newGuess.Guess.Spot.Y] = guesses.Count;
+                    board[newGuess.Guess.Spot.x, newGuess.Guess.Spot.y] = newGuess.Guess.Value;
+                    colors[newGuess.Guess.Spot.x, newGuess.Guess.Spot.y] = guesses.Count;
                 }
             }
         }
-        public static ((int X, int Y) Spot, Cell Value) BestGuess(Cell[,] board)
+        public static ((int x, int y) Spot, Cell Value) BestGuess(Cell[,] board)
         {
-            var first = board.GetSpots().First(s => board[s.X, s.Y] == Cell.Unkown);
+            var first = board.Points().First(s => board[s.x, s.y] == Cell.Unkown);
             return (first, Cell.Full);
         }
     }

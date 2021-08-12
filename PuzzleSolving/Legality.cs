@@ -1,6 +1,6 @@
 ﻿using CanalView;
 using System.Linq;
-using static CanalView.Array2DExtensions;
+using static CanalView.Array2D;
 
 namespace PuzzleSolving
 {
@@ -34,14 +34,14 @@ namespace PuzzleSolving
         public static bool LegalSquare(this Cell[,] board, int x, int y) =>
             !board.Contains(x, y) ||
             board[x, y] != Cell.Full ||
-            !Diagonals.Select(d => (X: x + d.X, Y: y + d.Y)).Any(s =>
-                board.Contains(s.X, s.Y) &&
-                board[x, s.Y] == Cell.Full &&
-                board[s.X, y] == Cell.Full &&
-                board[s.X, s.Y] == Cell.Full);
+            !Diagonals.Select(d => (x: x + d.x, y: y + d.y)).Any(s =>
+                board.Contains(s.x, s.y) &&
+                board[x, s.y] == Cell.Full &&
+                board[s.x, y] == Cell.Full &&
+                board[s.x, s.y] == Cell.Full);
 
-        public static bool LegalNumbers(this Cell[,] board) => !board.GetSpots()
-            .Any(s => board[s.X, s.Y] >= 0 && !board.LegalNumbers(s.X, s.Y));
+        public static bool LegalNumbers(this Cell[,] board) => !board.Points()
+            .Any(s => board[s.x, s.y] >= 0 && !board.LegalNumbers(s.x, s.y));
 
         public static bool LegalNumbers(this Cell[,] board, int x, int y)
         {
@@ -94,15 +94,16 @@ namespace PuzzleSolving
         }
 
         public static bool LegalPath(this Cell[,] board) =>
-            !board.GetSpots().TryFirst(s => board[s.X, s.Y] == Cell.Full, out var spot) ||
-            board.LegalPath(spot.X, spot.Y);
+            !board.Points().TryFirst(s => board[s.x, s.y] == Cell.Full, out var spot) ||
+            board.LegalPath(spot.x, spot.y);
 
         public static bool LegalPath(this Cell[,] board, int x, int y)
         {
             if (!board.Contains(x, y) || board[x, y] != Cell.Full)
                 return true;
-            var flooded = board.Copy().FloodFill(x, y, Cell.Full + 1);
-            return !flooded.GetSpots().Any(s => flooded[s.X, s.Y] == Cell.Full);
+            var copy = board.Copy();
+            FloodFill(copy, x, y, Cell.Full + 1);
+            return !copy.Points().Any(s => copy[s.x, s.y] == Cell.Full);
         }
     }
 }
