@@ -8,7 +8,6 @@ using static PuzzleSolving.EnumerableExtensions;
 
 namespace PuzzleSolving
 {
-    //todo: omg check that it still works after rework
     public static class Musts
     {
         private static readonly CellInfo[] None = Array.Empty<CellInfo>();
@@ -46,11 +45,9 @@ namespace PuzzleSolving
 
             return changes;
         }
-
         public static IEnumerable<CellInfo> ApplyMustsRecursively(Cell[,] board, IEnumerable<CellInfo> musts)
         {
             var changes = new List<CellInfo>();
-            // sub
             foreach (var c in musts)
             {
                 var subChanges = ApplyMustsRecursively(board, c);
@@ -59,25 +56,7 @@ namespace PuzzleSolving
                 changes.AddRange(subChanges);
             }
             return changes;
-
-
-            //Console.WriteLine("hi");
-            //Console.WriteLine(board.Tostring());
-            //Console.WriteLine();
-            //var list = new List<CellInfo>();
-            //foreach (var c in musts)
-            //{
-            //    list.Add(c);
-            //    var recursiveChanges = ApplyMustsRecursively(board, c);
-            //    if (recursiveChanges == null)
-            //        return null;
-            //    list.AddRange(recursiveChanges);
-            //}
-            //return list;
-            ////var a = musts.ContactIfNotNull(c => ).ToArray();
-            ////return a;
         }
-
         public static IEnumerable<CellInfo> ApplyMusts(Cell[,] board, CellInfo cell) => board[cell.Position.x, cell.Position.y] switch
         {
             Cell.Empty => ApplyMusts_Empty(board, cell),

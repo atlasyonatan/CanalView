@@ -28,18 +28,18 @@ namespace PuzzleSolving.Solvers
                 if (foundPreviously || changes == null)
                 {
                     foundPreviously = false;
-
-                    // remove used guesses
+                    
                     if (guesses.Count == 0)
                         yield break;
-                    else
-                        while (guessInfo.Remove)
-                        {
-                            guesses.Pop();
-                            if (guesses.Count == 0)
-                                yield break;
-                            guesses.TryPeek(out guessInfo);
-                        }
+
+                    // remove used guesses
+                    while (guessInfo.Remove)
+                    {
+                        guesses.Pop();
+                        if (guesses.Count == 0)
+                            yield break;
+                        guesses.TryPeek(out guessInfo);
+                    }
 
                     // Clean
                     var color = guesses.Count;
@@ -65,14 +65,9 @@ namespace PuzzleSolving.Solvers
                 else
                 {
                     // apply changes
-                    var changesArr = changes.ToArray();
-                    //System.Console.WriteLine(copy.Tostring());
-                    //System.Console.WriteLine();
-                    foreach (var cell in changesArr)
-                    {
+                    foreach (var cell in changes)
                         if (colors[cell.Position.x, cell.Position.y] == 0)
                             colors[cell.Position.x, cell.Position.y] = guesses.Count;
-                    }
 
                     board = copy;
 
@@ -82,7 +77,6 @@ namespace PuzzleSolving.Solvers
                     {
                         foundPreviously = true;
                         yield return board.Copy();
-                        //hasGuess = guesses.TryPeek(out guess);
                         continue;
                     }
 
@@ -91,11 +85,9 @@ namespace PuzzleSolving.Solvers
                     guesses.Push(newGuess);
                     board[newGuess.Guess.Spot.X, newGuess.Guess.Spot.Y] = newGuess.Guess.Value;
                     colors[newGuess.Guess.Spot.X, newGuess.Guess.Spot.Y] = guesses.Count;
-                    //guessInfo = newGuess;
                 }
             }
         }
-
         public static ((int X, int Y) Spot, Cell Value) BestGuess(Cell[,] board)
         {
             var first = board.GetSpots().First(s => board[s.X, s.Y] == Cell.Unkown);

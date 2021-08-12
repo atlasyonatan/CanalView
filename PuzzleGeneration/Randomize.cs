@@ -7,16 +7,12 @@ namespace PuzzleGeneration
     public static class Randomize
     {
         public static (int x, int y) RandomPosition<T>(this T[,] arr, Random random) =>
-            (random.Next(0, arr.GetLength(0) - 1), random.Next(0, arr.GetLength(1) - 1));//todo: check which 2darr dimension corrisponds to width and height
+            (random.Next(0, arr.GetLength(0) - 1), random.Next(0, arr.GetLength(1) - 1));
 
-        public static bool TryRandomItem<T>(this IEnumerable<T> source, Random random, out T item)
+        public static T RandomItem<T>(this IEnumerable<T> source, Random random)
         {
-            item = default;
             var arr = source.ToArray();
-            if (arr.Length == 0)
-                return false;
-            item = arr[random.Next(arr.Length)];
-            return true;
+            return arr[random.Next(arr.Length)];
         }
 
         public static (T item, double weight) WeightedRandomItem<T>(this IEnumerable<(T item, double weight)> source, Random random)

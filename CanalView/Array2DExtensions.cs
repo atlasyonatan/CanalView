@@ -31,12 +31,6 @@ namespace CanalView
             return board;
         }
 
-        public static T[,] Add<T>(this T[,] board, params (int x, int y, T cell)[] cells)
-        {
-            foreach (var (x, y, cell) in cells) board[x, y] = cell;
-            return board;
-        }
-
         public static T[,] FloodFill<T>(this T[,] board, int x, int y, T color) where T : IComparable
         {
             var match = board[x, y];

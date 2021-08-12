@@ -19,7 +19,7 @@ namespace PuzzleGeneration
                     DepthFirstTransform(arr, neighbor, transform);
             }
         }
-        public static void AddValidPath(Cell[,] board, (int x, int y) start, Func<(int x, int y), Cell> chooseCell/*, Random random, params (Cell type, double weight)[] weights*/)
+        public static void AddValidPath(Cell[,] board, (int x, int y) start, Func<(int x, int y), Cell> chooseCell)
         {
             var done = new bool[board.GetLength(0), board.GetLength(1)];
             DepthFirstTransform(board, start, p =>
