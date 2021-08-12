@@ -1,7 +1,8 @@
 using NUnit.Framework;
+using CanalView;
 using System.Linq;
 
-namespace CanalView.Test
+namespace PuzzleSolving.Test
 {
     public class RulesTests
     {
@@ -10,8 +11,8 @@ namespace CanalView.Test
         {
             var board = Board.Blank(3, 3);
             Assert.IsTrue(board.LegalSquare());
-            Assert.IsTrue(board.LegalSquare(0,0));
-            Assert.IsTrue(board.LegalSquare(2,2));
+            Assert.IsTrue(board.LegalSquare(0, 0));
+            Assert.IsTrue(board.LegalSquare(2, 2));
             board[1, 1] = Cell.Full;
             Assert.IsTrue(board.LegalSquare());
             Assert.IsTrue(board.LegalSquare(0, 0));
