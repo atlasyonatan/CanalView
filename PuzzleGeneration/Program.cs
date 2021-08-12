@@ -11,9 +11,9 @@ namespace PuzzleGenerator
     {
         static void Main(string[] args)
         {
-            var (width, height) = (3, 3);
-            var weights = new (Cell, double)[] { (Cell.Full, 1), (Cell.Empty, 3) };
-            var maxSolutions = 1;
+            var (width, height) = (5, 5);
+            var weights = new (Cell, double)[] { (Cell.Full, 2), (Cell.Empty, 1) };
+            var maxSolutions = 3;
             var r = new Random();
             var sw = new Stopwatch();
             var i = 0;

@@ -29,35 +29,45 @@ namespace PuzzleSolving
             return false;
         }
 
-        public static IEnumerable<T> Concat<T>(this IEnumerable<IEnumerable<T>> sources) =>
-            sources.SelectMany(s => s.Select(i => i));
+        public static IEnumerable<T> Concat<T>(this IEnumerable<IEnumerable<T>> sources)
+        {
+            var arr1 = sources.ToArray();
+            foreach (var source in arr1)
+            {
+                var arr2 = source.ToArray();
+                foreach (var item in arr2)
+                    yield return item;
+            }
+                
+            //return sources.SelectMany(s => s.Select(i => i));
+        }
 
         public static IEnumerable<T> ContactIfNotNull<T>(params Func<IEnumerable<T>>[] selectors)
         {
-            var results = new List<IEnumerable<T>>();
+            var results = new List<T>();
             foreach (var selector in selectors)
             {
                 var result = selector();
                 if (result == null)
                     return null;
-                results.Add(result);
+                results.AddRange(result);
             }
-            return results.Concat();
+            return results;
         }
 
         public static IEnumerable<TOut> ContactIfNotNull<TIn, TOut>(this IEnumerable<TIn> source, Func<TIn, IEnumerable<TOut>> selector)
         {
             if (source == null)
                 return null;
-            var results = new List<IEnumerable<TOut>>();
+            var results = new List<TOut>();
             foreach (var item in source)
             {
                 var result = selector(item);
                 if (result == null)
                     return null;
-                results.Add(result);
+                results.AddRange(result);
             }
-            return Concat(results);
+            return results;
         }
     }
 }

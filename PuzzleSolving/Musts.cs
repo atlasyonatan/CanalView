@@ -26,12 +26,58 @@ namespace PuzzleSolving
                 .Where(s => board[s.X, s.Y] != Cell.Unkown)
                 .Select(s => new CellInfo { Position = s })
                 .ToArray();
-            return placesOfInterest.ContactIfNotNull(c => ApplyMustsRecursively(board, c));
+            return ApplyMustsRecursively(board, placesOfInterest);
         }
-        public static IEnumerable<CellInfo> ApplyMustsRecursively(Cell[,] board, CellInfo cell) =>
-            ApplyMustsRecursively(board, ApplyMusts(board, cell));
-        public static IEnumerable<CellInfo> ApplyMustsRecursively(Cell[,] board, IEnumerable<CellInfo> musts) =>
-            musts.ContactIfNotNull(c => ApplyMustsRecursively(board, c));
+        public static IEnumerable<CellInfo> ApplyMustsRecursively(Cell[,] board, CellInfo cell)
+        {
+            var changes = new List<CellInfo>();
+
+            // direct
+            var directChanges = ApplyMusts(board, cell);
+            if (directChanges == null)
+                return null;
+            changes.AddRange(directChanges);
+
+            // sub
+            var subChanges = ApplyMustsRecursively(board, directChanges);
+            if (subChanges == null)
+                return null;
+            changes.AddRange(subChanges);
+
+            return changes;
+        }
+
+        public static IEnumerable<CellInfo> ApplyMustsRecursively(Cell[,] board, IEnumerable<CellInfo> musts)
+        {
+            var changes = new List<CellInfo>();
+            // sub
+            foreach (var c in musts)
+            {
+                var subChanges = ApplyMustsRecursively(board, c);
+                if (subChanges == null)
+                    return null;
+                changes.AddRange(subChanges);
+            }
+            return changes;
+
+
+            //Console.WriteLine("hi");
+            //Console.WriteLine(board.Tostring());
+            //Console.WriteLine();
+            //var list = new List<CellInfo>();
+            //foreach (var c in musts)
+            //{
+            //    list.Add(c);
+            //    var recursiveChanges = ApplyMustsRecursively(board, c);
+            //    if (recursiveChanges == null)
+            //        return null;
+            //    list.AddRange(recursiveChanges);
+            //}
+            //return list;
+            ////var a = musts.ContactIfNotNull(c => ).ToArray();
+            ////return a;
+        }
+
         public static IEnumerable<CellInfo> ApplyMusts(Cell[,] board, CellInfo cell) => board[cell.Position.x, cell.Position.y] switch
         {
             Cell.Empty => ApplyMusts_Empty(board, cell),
