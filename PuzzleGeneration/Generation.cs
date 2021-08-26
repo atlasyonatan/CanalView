@@ -19,7 +19,7 @@ namespace PuzzleGeneration
                     DepthFirstTransform(arr, neighbor, transform);
             }
         }
-        public static void AddValidPath(Cell[,] board, (int x, int y) start, Func<(int x, int y), Cell> chooseCell)
+        public static void AddValidPath(Cell[,] board, (int x, int y) start, Func<(int x, int y), Cell> chooseCell, bool allowLoop = true)
         {
             var done = new bool[board.GetLength(0), board.GetLength(1)];
             DepthFirstTransform(board, start, p =>
@@ -33,7 +33,14 @@ namespace PuzzleGeneration
                 if (board[p.x, p.y] != Cell.Unkown)
                     return false;
 
-                var chosenCell = chooseCell(p);
+                var chosenCell = allowLoop || Array2D.Cardinals.Select(d => (x: p.x + d.x, y: p.y + d.y))
+                    .Count(s => 
+                        done.Contains(s.x, s.y) && 
+                        board[s.x, s.y] == Cell.Full && 
+                        done[s.x, s.y]) <= 1 // oversight: this could be a problem with non-blank boards as input. could be fixed with floodfill
+                    ? chooseCell(p) 
+                    : Cell.Empty;
+
                 if (chosenCell != Cell.Full && chosenCell != Cell.Empty)
                     return false;
                 board[p.x, p.y] = chosenCell;
