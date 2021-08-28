@@ -1,4 +1,4 @@
-﻿using CanalView;
+using CanalView;
 using PuzzleGeneration;
 using System;
 using System.Diagnostics;
@@ -12,7 +12,7 @@ namespace PuzzleGenerator
         static void Main(string[] args)
         {
             var (width, height) = (8, 8);
-            var weights = new (Cell, double)[] { (Cell.Full, 7), (Cell.Empty, 3) };
+            var weights = new (Cell, double)[] { (Cell.Full, 7), (Cell.Empty, 4) };
             var maxSolutions = 1;
             var r = new Random();
             var sw = new Stopwatch();

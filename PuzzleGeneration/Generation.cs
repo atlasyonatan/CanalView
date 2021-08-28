@@ -1,4 +1,4 @@
-﻿using CanalView;
+using CanalView;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,13 +33,19 @@ namespace PuzzleGeneration
                 if (board[p.x, p.y] != Cell.Unkown)
                     return false;
 
-                var chosenCell = allowLoop || Array2D.Cardinals.Select(d => (x: p.x + d.x, y: p.y + d.y))
-                    .Count(s => 
-                        done.Contains(s.x, s.y) && 
-                        board[s.x, s.y] == Cell.Full && 
-                        done[s.x, s.y]) <= 1 // oversight: this could be a problem with non-blank boards as input. could be fixed with floodfill
-                    ? chooseCell(p) 
-                    : Cell.Empty;
+                Cell chosenCell;
+                if (allowLoop)
+                    chosenCell = chooseCell(p);
+                else
+                {
+                    // oversight: this could be a problem with non-blank boards as input. could be fixed with floodfill
+                    var count = Array2D.Cardinals.Select(d => (x: p.x + d.x, y: p.y + d.y))
+                        .Count(s =>
+                        done.Contains(s.x, s.y) &&
+                        board[s.x, s.y] == Cell.Full &&
+                        done[s.x, s.y]);
+                    chosenCell = count > 1 ? Cell.Empty : chooseCell(p);
+                }
 
                 if (chosenCell != Cell.Full && chosenCell != Cell.Empty)
                     return false;
