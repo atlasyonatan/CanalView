@@ -78,25 +78,70 @@ namespace PuzzleGeneration
             board[position.x, position.y] = (Cell)board.FindNumber(position);
             ApplyMustsRecursively(board, new CellInfo { Position = position });
         }
-        public static Cell[][,] ApplyChangesUntilBelowMaxSolutions(Cell[,] board, int maxSolutions, Func<bool> applyChanges, Func<Cell[,], IEnumerable<Cell[,]>> solver)
+
+        public class PuzzleInfo
         {
-            Cell[][,] solutions = null;
-            while (applyChanges())
-            {
-                var copy = board.Copy();
-                Clean(copy);
-                var count = 0;
-                solutions = solver(copy).TakeWhile(_ => ++count <= maxSolutions).ToArray();
-                if (count <= maxSolutions)
-                    break;
-            }
-            return solutions;
+            public Cell[,] Puzzle;
+            public Cell[][,] Solutions;
+            public Cell[,] Origin;
         }
+        public static bool TryMutateUntilBelowMaxSolutions(Cell[,] board, int maxSolutions, Func<Cell[,], bool> applyChanges, Func<Cell[,], IEnumerable<Cell[,]>> solver, out PuzzleInfo puzzleInfo)
+        {
+            board = board.Copy();
+            while (true)
+            {
+                var clean = board.Copy();
+                Clean(clean);
+                var count = 0;
+                puzzleInfo = new PuzzleInfo
+                {
+                    Puzzle = clean,
+                    Origin = board,
+                    Solutions = solver(clean).TakeWhile(_ => ++count <= maxSolutions).ToArray()
+                };
+                if (count <= maxSolutions)
+                    return true;
+                if (!applyChanges(board))
+                    return false;
+            }
+        }
+
+        public static bool TryMutateUntilBeforeAboveMaxSolutions(Cell[,] board, int maxSolutions, Func<Cell[,], bool> applyChanges, Func<Cell[,], IEnumerable<Cell[,]>> solver, out PuzzleInfo puzzleInfo)
+        {
+            board = board.Copy();
+            puzzleInfo = null;
+            var found = false;
+            while (true)
+            {
+                var clean = board.Copy();
+                Clean(clean);
+                var count = 0;
+                var newPuzzleInfo = new PuzzleInfo
+                {
+                    Puzzle = clean,
+                    Origin = board,
+                    Solutions = solver(clean).TakeWhile(_ => ++count <= maxSolutions).ToArray()
+                };
+                if (count > maxSolutions)
+                    return found;
+                found = true;
+                puzzleInfo = newPuzzleInfo;
+                if (!applyChanges(board))
+                    return found;
+            }
+        }
+
         public static void Clean(Cell[,] board)
         {
             foreach (var (x, y) in board.Points())
                 if (board[x, y] < 0)
                     board[x, y] = Cell.Unkown;
+        }
+
+        public static void FillAllNumbers(Cell[,] board)
+        {
+            foreach (var p in board.Points().Where(p => board[p.x, p.y] != Cell.Full && board[p.x, p.y] < 0))
+                FillNumber(board, p);
         }
     }
 }

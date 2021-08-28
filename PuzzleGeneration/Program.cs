@@ -27,26 +27,34 @@ namespace PuzzleGenerator
                 var counts = board.Points().GroupBy(p => board[p.x, p.y]).ToDictionary(g => g.Key, g => g.Count());
                 if (counts[Cell.Full] < counts[Cell.Empty])
                     continue;
-                var solutions = Generation.ApplyChangesUntilBelowMaxSolutions(board, maxSolutions, () => AddRandomNumber(board, r), PuzzleSolving.Solvers.InferSolver.Solve);
+
+                Generation.FillAllNumbers(board);
+                var foundPuzzle = Generation.TryMutateUntilBeforeAboveMaxSolutions(board, maxSolutions, b => RemoveRandomNumber(b, r), PuzzleSolving.Solvers.InferSolver.Solve, out var puzzleInfo);
+                //var foundPuzzle = Generation.TryMutateUntilBelowMaxSolutions(board, maxSolutions, b => AddRandomNumber(b, r), PuzzleSolving.Solvers.InferSolver.Solve, out var puzzleInfo);
+
                 sw.Stop();
-                if (solutions.Length == 0)
+                if (!foundPuzzle)
                 {
-                    Console.WriteLine($"Puzzle #{++i} (n. of solutions = {solutions.Length} ,{sw.Elapsed:c}):");
+                    Console.WriteLine("couldn't mutate board");
+                    Console.WriteLine(puzzleInfo?.Origin.Tostring());
+                }
+                if (puzzleInfo.Solutions.Length == 0)
+                {
+                    Console.WriteLine($"Puzzle #{++i} (n. of solutions = {puzzleInfo.Solutions.Length} ,{sw.Elapsed:c}):");
                     Console.WriteLine("constructed:");
-                    Console.WriteLine(board.Tostring());
+                    Console.WriteLine(puzzleInfo.Origin.Tostring());
                     Console.WriteLine();
 
                     throw new Exception("solver is bad if it can't find solutions to constructed valid puzzle");
                 }
                 else
                 {
-                    Console.WriteLine($"Puzzle #{++i} (n. of solutions = {solutions.Length} ,{sw.Elapsed:c}):");
-                    Generation.Clean(board);
-                    Console.WriteLine(board.Tostring());
+                    Console.WriteLine($"Puzzle #{++i} (n. of solutions = {puzzleInfo.Solutions.Length} ,{sw.Elapsed:c}):");
+                    Console.WriteLine(puzzleInfo.Puzzle.Tostring());
                     Console.WriteLine();
                     Console.WriteLine("Solutions:");
                     var j = 0;
-                    foreach (var solution in solutions)
+                    foreach (var solution in puzzleInfo.Solutions)
                     {
                         Console.WriteLine($"Solution #{++j}");
                         Console.WriteLine(solution.Tostring());
