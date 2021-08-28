@@ -1,4 +1,4 @@
-﻿using CanalView;
+using CanalView;
 using PuzzleGeneration;
 using System;
 using System.Diagnostics;
@@ -12,8 +12,8 @@ namespace PuzzleGenerator
         static void Main(string[] args)
         {
             var (width, height) = (8, 8);
-            var weights = new (Cell, double)[] { (Cell.Full, 7), (Cell.Empty, 3) };
-            var maxSolutions = 2;
+            var weights = new (Cell, double)[] { (Cell.Full, 7), (Cell.Empty, 4) };
+            var maxSolutions = 1;
             var r = new Random();
             var sw = new Stopwatch();
             var i = 0;
@@ -23,7 +23,7 @@ namespace PuzzleGenerator
                 var start = board.RandomPosition(r);
                 board[start.x, start.y] = Cell.Full;
                 sw.Restart();
-                Generation.AddValidPath(board, start, _ => Randomize.WeightedRandomItem(weights, r).item);
+                Generation.AddValidPath(board, start, _ => Randomize.WeightedRandomItem(weights, r).item, allowLoop: false);
                 var counts = board.Points().GroupBy(p => board[p.x, p.y]).ToDictionary(g => g.Key, g => g.Count());
                 if (counts[Cell.Full] < counts[Cell.Empty])
                     continue;
