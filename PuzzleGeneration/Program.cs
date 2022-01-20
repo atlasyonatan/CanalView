@@ -2,6 +2,7 @@ using CanalView;
 using PuzzleGeneration;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using static PuzzleGeneration.RandomGeneration;
 
@@ -11,6 +12,9 @@ namespace PuzzleGenerator
     {
         static void Main(string[] args)
         {
+            var savedPuzzlesFolderPath = @"C:\CanalView Saves";
+
+
             var (width, height) = (8, 8);
             var weights = new (Cell, double)[] { (Cell.Full, 7), (Cell.Empty, 4) };
             var maxSolutions = 1;
@@ -29,14 +33,14 @@ namespace PuzzleGenerator
                     continue;
                 var solutions = Generation.ApplyChangesUntilBelowMaxSolutions(board, maxSolutions, () => AddRandomNumber(board, r), PuzzleSolving.Solvers.InferSolver.Solve);
                 sw.Stop();
+                Console.WriteLine($"Puzzle #{++i} (n. of solutions = {solutions.Length} ,{sw.Elapsed:c}):");
                 if (solutions.Length == 0)
                 {
-                    Console.WriteLine($"Puzzle #{++i} (n. of solutions = {solutions.Length} ,{sw.Elapsed:c}):");
                     Console.WriteLine("constructed:");
                     Console.WriteLine(board.Tostring());
                     Console.WriteLine();
 
-                    throw new Exception("solver is bad if it can't find solutions to constructed valid puzzle");
+                    Console.WriteLine("solver is bad if it can't find solutions to constructed valid puzzle");
                 }
                 else
                 {
@@ -53,8 +57,37 @@ namespace PuzzleGenerator
                         Console.WriteLine();
                     }
                 }
-                Console.ReadLine();
+
+                var input = Console.ReadLine();
+                //save board
+                if (input == "s")
+                {
+                    var puzzleName = $"CanalView Generated Puzzle {i} {solutions.Length}";
+                    SaveBoardVisualText(board, puzzleName, savedPuzzlesFolderPath);
+                    Console.ReadLine();
+                }
             }
+        }
+
+        //static void SaveBoardJson(Cell[,] board, string name, string folderPath)
+        //{
+        //    var boardData = KnownCells.FromBoard(board);
+        //    var data = JsonSerializer.Serialize(boardData, new JsonSerializerOptions { IncludeFields = true });
+        //    var fileExtension = ".json";
+        //    var filePath = Path.Combine(folderPath, name + fileExtension);
+        //    File.WriteAllText(filePath, data);
+        //    Console.WriteLine($"Saved puzzle at {filePath}");
+        //    Console.WriteLine();
+        //}
+
+        static void SaveBoardVisualText(Cell[,] board, string name, string folderPath)
+        {
+            var data = BoardSerialization.VisualSerializer.Serialize(board);
+            var fileExtension = ".txt";
+            var filePath = Path.Combine(folderPath, name + fileExtension);
+            File.WriteAllText(filePath, data);
+            Console.WriteLine($"Saved puzzle at {filePath}");
+            Console.WriteLine();
         }
     }
 }

@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BoardData\BoardData.csproj" />
+    <ProjectReference Include="..\BoardSerialization\BoardSerialization.csproj" />
     <ProjectReference Include="..\CanalView\CanalView.csproj" />
     <ProjectReference Include="..\PuzzleSolving\PuzzleSolving.csproj" />
   </ItemGroup>
