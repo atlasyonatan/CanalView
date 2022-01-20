@@ -21,28 +21,28 @@ namespace CanalView
 
         public static T[,] Copy<T>(this T[,] arr) => (T[,])arr.Clone();
 
-        public static void Fill<T>(T[,] board, T cell)
+        public static void Fill<T>(T[,] arr, T cell)
         {
-            var width = board.GetLength(0);
-            var height = board.GetLength(1);
+            var width = arr.GetLength(0);
+            var height = arr.GetLength(1);
             for (var x = 0; x < width; x++)
                 for (var y = 0; y < height; y++)
-                    board[x, y] = cell;
+                    arr[x, y] = cell;
         }
 
-        public static void FloodFill<T>(T[,] board, int x, int y, T color) where T : IComparable
+        public static void FloodFill<T>(T[,] arr, int x, int y, T color) where T : IComparable
         {
-            var match = board[x, y];
+            var match = arr[x, y];
             if (match.CompareTo(color) == 0)
                 return;
             void InnerFloodFill(int x, int y)
             {
-                board[x, y] = color;
+                arr[x, y] = color;
                 for (var i = 0; i < Cardinals.Length; i++)
                 {
                     var newX = x + Cardinals[i].x;
                     var newY = y + Cardinals[i].y;
-                    if (board.Contains(newX, newY) && board[newX, newY].CompareTo(match) == 0)
+                    if (arr.Contains(newX, newY) && arr[newX, newY].CompareTo(match) == 0)
                         InnerFloodFill(newX, newY);
                 }
             }

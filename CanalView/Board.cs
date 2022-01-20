@@ -8,7 +8,7 @@ namespace CanalView
         public static Cell[,] Blank(int width, int height)
         {
             var board = new Cell[width, height];
-            Fill(board, Cell.Unkown);
+            Fill(board, Cell.Unknown);
             return board;
         }
 
@@ -26,7 +26,7 @@ namespace CanalView
         {
             Cell.Empty => "∙",
             Cell.Full => "■",
-            Cell.Unkown => "_",
+            Cell.Unknown => "_",
             _ => ((int)cell).ToString()
         };
     }

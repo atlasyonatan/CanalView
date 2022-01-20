@@ -22,7 +22,7 @@ namespace PuzzleSolving
         public static IEnumerable<CellInfo> ApplyMustsRecursively(Cell[,] board)
         {
             var placesOfInterest = board.Points()
-                .Where(s => board[s.x, s.y] != Cell.Unkown)
+                .Where(s => board[s.x, s.y] != Cell.Unknown)
                 .Select(s => new CellInfo { Position = s })
                 .ToArray();
             return ApplyMustsRecursively(board, placesOfInterest);
@@ -61,7 +61,7 @@ namespace PuzzleSolving
         {
             Cell.Empty => ApplyMusts_Empty(board, cell),
             Cell.Full => ApplyMusts_Full(board, cell),
-            Cell.Unkown => None,
+            Cell.Unknown => None,
             _ => ApplyMusts_Number(board, cell)
         };
 
@@ -108,7 +108,7 @@ namespace PuzzleSolving
                 {
                     case Cell.Full:
                         return null;
-                    case Cell.Unkown:
+                    case Cell.Unknown:
                         //Update board
                         board[p.x, p.y] = Cell.Empty;
                         changes.Add(new CellInfo { Position = p, Cause = cell.Position });
@@ -130,7 +130,7 @@ namespace PuzzleSolving
 
             var chunkExits = copy.Points()
                 .Where(s => copy[s.x, s.y] == CHUNK_COLOR).SelectMany(s =>
-                    Cardinals.Select(d => (x: s.x + d.x, y: s.y + d.y)).Where(s => board.Contains(s.x, s.y) && board[s.x, s.y] == Cell.Unkown))
+                    Cardinals.Select(d => (x: s.x + d.x, y: s.y + d.y)).Where(s => board.Contains(s.x, s.y) && board[s.x, s.y] == Cell.Unknown))
                 .Distinct()
                 .ToArray();
 
@@ -189,14 +189,14 @@ namespace PuzzleSolving
 
             var unknownNeighbors = Cardinals.Select(d => (x: x + d.x, y: y + d.y)).Where(s =>
                 board.Contains(s.x, s.y) &&
-                board[s.x, s.y] == Cell.Unkown)
+                board[s.x, s.y] == Cell.Unknown)
                 .ToArray();
 
             var musts = new List<(int X, int Y)>() { };
 
             foreach (var (X, Y) in unknownNeighbors)
             {
-                if (board[X, Y] != Cell.Unkown) continue;
+                if (board[X, Y] != Cell.Unknown) continue;
                 var copy = board.Copy();
                 FloodFill(copy,X, Y, CHUNK_COLOR);
                 var chunkSpots = copy.Points()
@@ -240,7 +240,7 @@ namespace PuzzleSolving
                         distances[j] = scale - 1;
                         break;
                     }
-                    if (foundUnknown || board[newX, newY] == Cell.Unkown)
+                    if (foundUnknown || board[newX, newY] == Cell.Unknown)
                         foundUnknown = true;
                     else if (board[newX, newY] == Cell.Full)
                     {
@@ -278,8 +278,8 @@ namespace PuzzleSolving
                             y: y + Cardinals[i].y * scale))
                         .Where(s => board.Contains(s.x, s.y))
                         .ToArray();
-                    if (mfs.Any(s => board[s.x, s.y] != Cell.Unkown))
-                        if (mfs.Any(s => board[s.x, s.y] != Cell.Unkown && board[s.x, s.y] != Cell.Full))
+                    if (mfs.Any(s => board[s.x, s.y] != Cell.Unknown))
+                        if (mfs.Any(s => board[s.x, s.y] != Cell.Unknown && board[s.x, s.y] != Cell.Full))
                             return null;
                     if (mfs.Length > 0)
                     {
@@ -307,7 +307,7 @@ namespace PuzzleSolving
                     var fillEmpties = fullCount.Select((fc, i) => (
                         x: x + Cardinals[i].x * (fc + 1),
                         y: y + Cardinals[i].y * (fc + 1)))
-                        .Where(s => board.Contains(s.x, s.y) && board[s.x, s.y] == Cell.Unkown);
+                        .Where(s => board.Contains(s.x, s.y) && board[s.x, s.y] == Cell.Unknown);
 
                     //Update board
                     foreach (var p in fillEmpties)
@@ -323,7 +323,7 @@ namespace PuzzleSolving
                 {
                     var nextScale = fullCount[i] + 1;
                     var next = (x: x + Cardinals[i].x * nextScale, y: y + Cardinals[i].y * nextScale);
-                    if (board.Contains(next.x, next.y) && board[next.x, next.y] == Cell.Unkown)
+                    if (board.Contains(next.x, next.y) && board[next.x, next.y] == Cell.Unknown)
                     {
                         var afterNextFullCount = 0;
                         while (true)

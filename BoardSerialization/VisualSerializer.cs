@@ -18,12 +18,12 @@ namespace BoardSerialization
         {
             Cell.Empty => "e",
             Cell.Full => "f",
-            Cell.Unkown => "_",
+            Cell.Unknown => "_",
             _ => ((int)cell).ToString()
         };
         public static Cell DeserializeCell(string s) => s switch
         {
-            "_" => Cell.Unkown,
+            "_" => Cell.Unknown,
             "e" => Cell.Empty,
             "f" => Cell.Full,
             _ => (Cell)(int.TryParse(s, out var n) ? n : throw new ArgumentException($"Indefined string {s}")),

@@ -61,7 +61,7 @@ namespace PuzzleSolving
                         var newY = y + dy * scale;
                         if (!board.Contains(newX, newY) || board[newX, newY] == Cell.Empty || board[newX, newY] >= 0)
                             break;
-                        if (foundUnknown || board[newX, newY] == Cell.Unkown)
+                        if (foundUnknown || board[newX, newY] == Cell.Unknown)
                         {
                             foundUnknown = true;
                             countUnknown++;

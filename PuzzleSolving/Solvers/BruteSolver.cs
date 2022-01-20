@@ -13,16 +13,16 @@ namespace PuzzleSolving.Solvers
             board = board.Copy();
             var i = 0;
             var unknowns = board.Points()
-                    .Where(s => board[s.x, s.y] == Cell.Unkown)
+                    .Where(s => board[s.x, s.y] == Cell.Unknown)
                     .ToArray();
             while (i >= 0)
             {
                 var (x, y) = unknowns[i];
                 var cell = board[x, y];
-                int nextGuessIndex = cell == Cell.Unkown ? 0 : Array.IndexOf(FillOptions, cell) + 1;
+                int nextGuessIndex = cell == Cell.Unknown ? 0 : Array.IndexOf(FillOptions, cell) + 1;
                 if (nextGuessIndex >= FillOptions.Length)
                 {
-                    board[x, y] = Cell.Unkown;
+                    board[x, y] = Cell.Unknown;
                     i--;
                     continue;
                 }

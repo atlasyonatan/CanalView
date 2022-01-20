@@ -30,7 +30,7 @@ namespace PuzzleGeneration
 
                 if (board[p.x, p.y] == Cell.Full)
                     return true;
-                if (board[p.x, p.y] != Cell.Unkown)
+                if (board[p.x, p.y] != Cell.Unknown)
                     return false;
 
                 Cell chosenCell;
@@ -96,7 +96,7 @@ namespace PuzzleGeneration
         {
             foreach (var (x, y) in board.Points())
                 if (board[x, y] < 0)
-                    board[x, y] = Cell.Unkown;
+                    board[x, y] = Cell.Unknown;
         }
     }
 }

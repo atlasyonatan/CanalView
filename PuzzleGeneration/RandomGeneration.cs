@@ -9,7 +9,7 @@ namespace PuzzleGeneration
         public static bool AddRandomNumber(Cell[,] board, Random random)
         {
             var vacantSpots = board.Points()
-                .Where(p => board[p.x, p.y] == Cell.Unkown || board[p.x, p.y] == Cell.Empty)
+                .Where(p => board[p.x, p.y] == Cell.Unknown || board[p.x, p.y] == Cell.Empty)
                 .ToArray();
             if (vacantSpots.Length == 0)
                 return false;

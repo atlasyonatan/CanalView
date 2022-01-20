@@ -10,7 +10,7 @@ namespace BoardData
         public static KnownCells FromBoard(Cell[,] board) => new()
         {
             Cells = board.Points()
-                .Where(s => board[s.x, s.y] != Cell.Unkown)
+                .Where(s => board[s.x, s.y] != Cell.Unknown)
                 .Select(s => (s.x, s.y, (int)board[s.x, s.y]))
                 .ToArray(),
             Size = (board.GetLength(0), board.GetLength(1))

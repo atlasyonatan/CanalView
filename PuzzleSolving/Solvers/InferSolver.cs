@@ -45,7 +45,7 @@ namespace PuzzleSolving.Solvers
                     var color = guesses.Count;
                     foreach (var (x, y) in board.Points().Where(s => colors[s.x, s.y] >= color).ToArray())
                     {
-                        board[x, y] = Cell.Unkown;
+                        board[x, y] = Cell.Unknown;
                         colors[x, y] = 0;
                     }
 
@@ -72,7 +72,7 @@ namespace PuzzleSolving.Solvers
                     board = copy;
 
                     // board is completed
-                    var completed = board.Points().All(s => board[s.x, s.y] != Cell.Unkown);
+                    var completed = board.Points().All(s => board[s.x, s.y] != Cell.Unknown);
                     if (completed)
                     {
                         foundPreviously = true;
@@ -90,7 +90,7 @@ namespace PuzzleSolving.Solvers
         }
         public static ((int x, int y) Spot, Cell Value) BestGuess(Cell[,] board)
         {
-            var first = board.Points().First(s => board[s.x, s.y] == Cell.Unkown);
+            var first = board.Points().First(s => board[s.x, s.y] == Cell.Unknown);
             return (first, Cell.Full);
         }
     }
