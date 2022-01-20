@@ -48,5 +48,52 @@ namespace CanalView
             }
             InnerFloodFill(x, y);
         }
+
+        public static T[,] ConvertTo2DArray<T>(T[][] jaggedArray)
+        {
+            var columnLength = jaggedArray.Length;
+            if (columnLength == 0)
+                return new T[0, 0];
+            var rowLength = jaggedArray[0].Length;
+            if (jaggedArray.Any(row => row.Length != rowLength))
+                throw new InvalidOperationException("Different row lengths in jagged array.");
+            var array2D = new T[rowLength, columnLength];
+            for (int y = 0; y < columnLength; y++)
+                for (int x = 0; x < rowLength; x++)
+                    array2D[x, y] = jaggedArray[y][x];
+            return array2D;
+        }
+
+        public static bool TryConvertTo2DArray<T>(T[][] jaggedArray, out T[,] array2D)
+        {
+            array2D = new T[0, 0];
+            var columnLength = jaggedArray.Length;
+            if (columnLength == 0)
+                return true;
+            var rowLength = jaggedArray[0].Length;
+            if (jaggedArray.Any(row => row.Length != rowLength))
+                return false;
+            array2D = new T[rowLength, columnLength];
+            for (int y = 0; y < columnLength; y++)
+                for (int x = 0; x < rowLength; x++)
+                    array2D[x, y] = jaggedArray[y][x];
+            return true;
+        }
+
+        public static T[][] ToJaggedArray<T>(T[,] array2D)
+        {
+            var jagged = new T[array2D.GetLength(1)][];
+            for (int y = 0; y < array2D.GetLength(1); y++)
+            {
+                jagged[y] = new T[array2D.GetLength(0)];
+                for (int x = 0; x < array2D.GetLength(0); x++)
+                    jagged[y][x] = array2D[x, y];
+            }
+            return jagged;
+        }
+
+        public static bool SequenceEquals<T>(this T[,] a, T[,] b) => a.Rank == b.Rank
+            && Enumerable.Range(0, a.Rank).All(d => a.GetLength(d) == b.GetLength(d))
+            && a.Cast<T>().SequenceEqual(b.Cast<T>());
     }
 }
