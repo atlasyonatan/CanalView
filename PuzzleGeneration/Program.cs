@@ -15,8 +15,8 @@ namespace PuzzleGenerator
             var savedPuzzlesFolderPath = @"C:\CanalView Saves";
 
 
-            var (width, height) = (8, 8);
-            var weights = new (Cell, double)[] { (Cell.Full, 7), (Cell.Empty, 4) };
+            var (width, height) = (10, 10);
+            var weights = new (Cell, double)[] { (Cell.Full, 9), (Cell.Empty, 5) };
             var maxSolutions = 1;
             var r = new Random();
             var sw = new Stopwatch();
@@ -44,7 +44,6 @@ namespace PuzzleGenerator
                 }
                 else
                 {
-                    Console.WriteLine($"Puzzle #{++i} (n. of solutions = {solutions.Length} ,{sw.Elapsed:c}):");
                     Generation.Clean(board);
                     Console.WriteLine(board.Tostring());
                     Console.WriteLine();
@@ -62,7 +61,7 @@ namespace PuzzleGenerator
                 //save board
                 if (input == "s")
                 {
-                    var puzzleName = $"CanalView Generated Puzzle {i} {solutions.Length}";
+                    var puzzleName = $"CanalView Generated Puzzle {i} {solutions.Length} {DateTime.Now:yyyyMMddHHmmssffff}";
                     SaveBoardVisualText(board, puzzleName, savedPuzzlesFolderPath);
                     Console.ReadLine();
                 }
